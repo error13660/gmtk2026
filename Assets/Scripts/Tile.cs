@@ -51,6 +51,7 @@ public class Tile : MonoBehaviour
     public void SetPos(Vector2Int pos)
     {
         transform.position = new Vector3(pos.x, pos.y * -1, 0);
+        mineTime = 0;
         this.pos = pos;
     }
 
