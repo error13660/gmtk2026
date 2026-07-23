@@ -24,11 +24,10 @@ public class Tile : MonoBehaviour
 
     private void EvaluateMining()
     {
-        Vector2Int minePos = Player.mineIntPos;
         if (!Player.isMining) { mineTime = 0; return; }
 
         //The player is mining. Is it mining this tile?
-        bool isInRange = IsInRange(minePos, 1);
+        bool isInRange = (IsInRange(Player.mineFPos, .99f));
 
         if (isInRange) mineTime += Time.deltaTime;
         if (mineTime > .5f)
@@ -62,10 +61,10 @@ public class Tile : MonoBehaviour
         Destroy(extraDetail);
     }
 
-    private bool IsInRange(Vector2Int minePos, int range)
+    private bool IsInRange(Vector2 minePos, float range)
     {
-        if (Mathf.Abs(minePos.x - pos.x) > range) return false;
-        if (Mathf.Abs(minePos.y - pos.y) > range) return false;
+        if (Mathf.Abs(minePos.x - (float)pos.x) > range) return false;
+        if (Mathf.Abs(minePos.y - (float)pos.y) > range) return false;
         return true;
     }
 }
