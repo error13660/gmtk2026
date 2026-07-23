@@ -1,98 +1,133 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 
 public class LeaderboardManager : MonoBehaviour
 {
-
     [Header("Leaderboard UI")]
     [SerializeField] private LeaderboardRowUI rowPrefab;
     [SerializeField] private Transform tableContent;
 
-    [Header("JSON")]
-    [SerializeField] private string jsonFileName = "leaderboard.json";
+    [Header("API")]
+    [SerializeField]
+    private string apiUrl =
+        "https://dzsepetto.hu/gmtk_api/gmtk_api.php";
 
     private readonly List<LeaderboardRowUI> createdRows = new();
 
     private IEnumerator Start()
     {
-        yield return LoadLeaderboardFromJson();
+        yield return LoadLeaderboardFromApi();
     }
 
-    private IEnumerator LoadLeaderboardFromJson()
+    public void RefreshLeaderboard()
     {
-        string filePath = Path.Combine(
-            Application.dataPath,
-            "Scripts",
-            "Leaderboard",
-            jsonFileName
+        StartCoroutine(LoadLeaderboardFromApi());
+    }
+    private IEnumerator LoadLeaderboardFromApi()
+    {
+
+
+        yield return new WaitForSecondsRealtime(2f);
+        LoadingService.Instance.Show();
+
+        yield return new WaitForSecondsRealtime(5f);
+
+
+
+        using UnityWebRequest request = UnityWebRequest.Get(apiUrl);
+
+        request.SetRequestHeader(
+            "Accept",
+            "application/json"
         );
 
-        string json;
+        yield return request.SendWebRequest();
 
-        if (filePath.Contains("://") || filePath.Contains(":///"))
+        try
         {
-            using UnityWebRequest request = UnityWebRequest.Get(filePath);
-
-            yield return request.SendWebRequest();
-
             if (request.result != UnityWebRequest.Result.Success)
             {
                 Debug.LogError(
-                    $"Nem sikerült betölteni a JSON fájlt: {request.error}"
+                    $"Nem sikerült lekérni a leaderboardot. " +
+                    $"HTTP: {request.responseCode}, " +
+                    $"hiba: {request.error}, " +
+                    $"válasz: {request.downloadHandler.text}"
                 );
 
                 yield break;
             }
 
-            json = request.downloadHandler.text;
-        }
-        else
-        {
-            if (!File.Exists(filePath))
+            string json = request.downloadHandler.text;
+
+            LeaderboardListResponse response =
+                JsonUtility.FromJson<LeaderboardListResponse>(json);
+
+            if (response == null)
             {
                 Debug.LogError(
-                    $"Nem található a JSON fájl: {filePath}"
+                    "Az API válasza üres vagy hibás."
                 );
 
                 yield break;
             }
 
-            json = File.ReadAllText(filePath);
+            if (!response.success)
+            {
+                Debug.LogError(
+                    $"Az API hibát adott vissza: {response.message}"
+                );
+
+                yield break;
+            }
+
+            if (response.data == null)
+            {
+                ClearLeaderboard();
+                yield break;
+            }
+
+            ShowLeaderboard(response.data);
         }
-
-        LeaderboardData leaderboardData =
-            JsonUtility.FromJson<LeaderboardData>(json);
-
-        if (
-            leaderboardData == null ||
-            leaderboardData.players == null
-        )
+        finally
         {
-            Debug.LogError(
-                "A leaderboard JSON formátuma nem megfelelõ."
-            );
-
-            yield break;
+            LoadingService.Instance.Hide();
         }
-
-        ShowLeaderboard(leaderboardData.players);
     }
-
     private void ShowLeaderboard(
-        List<LeaderboardPlayerData> players
+        LeaderboardEntry[] players
     )
     {
         ClearLeaderboard();
 
-        players.Sort(
+        List<LeaderboardEntry> sortedPlayers =
+            new List<LeaderboardEntry>(players);
+
+        sortedPlayers.Sort(
             (firstPlayer, secondPlayer) =>
-                secondPlayer.score.CompareTo(firstPlayer.score)
+            {
+                int scoreComparison =
+                    secondPlayer.score.CompareTo(
+                        firstPlayer.score
+                    );
+
+                if (scoreComparison != 0)
+                {
+                    return scoreComparison;
+                }
+
+                return secondPlayer.depth.CompareTo(
+                    firstPlayer.depth
+                );
+            }
         );
 
-        for (int index = 0; index < players.Count; index++)
+        for (
+            int index = 0;
+            index < sortedPlayers.Count;
+            index++
+        )
         {
             LeaderboardRowUI newRow = Instantiate(
                 rowPrefab,
@@ -101,7 +136,10 @@ public class LeaderboardManager : MonoBehaviour
 
             int position = index + 1;
 
-            newRow.SetData(position, players[index]);
+            newRow.SetData(
+                position,
+                sortedPlayers[index]
+            );
 
             createdRows.Add(newRow);
         }
@@ -119,5 +157,4 @@ public class LeaderboardManager : MonoBehaviour
 
         createdRows.Clear();
     }
-
 }
