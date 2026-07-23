@@ -3,6 +3,7 @@ using UnityEngine;
 /// <summary>
 /// Holds data that is needed to generate a Tile
 /// </summary>
+[CreateAssetMenu]
 public class TileData : ScriptableObject
 {
     public Mesh mesh;

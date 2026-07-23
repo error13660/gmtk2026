@@ -14,34 +14,35 @@ public class TilePool : MonoBehaviour
 
     private void Awake()
     {
-        pool = new List<Tile>();
+        int poolSize = (int)Mathf.Pow(
+            (TileManager.instance.spawnDistance * 1.2f * 2), 2);
+
+        pool = new List<Tile>(poolSize);
+        for (int i = 0; i < poolSize; i++)
+        {
+            pool.Add(Instantiate(tilePrefab, transform));
+        }
+        Debug.Log("pool size created: " + poolSize);
     }
 
     public void RequestTileAt(Vector2Int pos, int tileId)
     {
         //get tile
         Tile tile;
-
-        if (pool.Count > 0)
-        {
-            tile = pool[0];
-            pool.RemoveAt(0);
-        }
-        else
-        {
-            tile = Instantiate(tilePrefab);
-        }
+        tile = pool[pool.Count - 1];
+        pool.RemoveAt(pool.Count - 1);
 
         //prepare tile
         tile.SetMesh(tileset[tileId].mesh);
         if (tileset[tileId].extraDetail != null) tile.SetExtraObject(tileset[tileId].extraDetail);
-        tile.transform.position = new Vector3(pos.x,pos.y,0);
         tile.SetPos(pos);
+        tile.SetTileId(tileId);
         tile.gameObject.SetActive(true);
     }
 
     public void ReturnTile(Tile tile)
     {
+        tile.DestroyExtraDetail();
         tile.gameObject.SetActive(false);
         pool.Add(tile);
     }

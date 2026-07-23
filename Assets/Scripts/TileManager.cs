@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class TileManager : MonoBehaviour
@@ -10,6 +11,7 @@ public class TileManager : MonoBehaviour
     private byte[,] tilesData; //stores the tile ids and their alive state 0000000/0 id/state
     [SerializeField] private int mapSeed;
     [SerializeField] private TilePool tilePool;
+    private HashSet<Vector2Int> minedTiles;
 
     [SerializeField] public int spawnDistance;
 
@@ -17,6 +19,7 @@ public class TileManager : MonoBehaviour
     {
         instance = this;
         tilesData = new byte[mapWith, mapHeight];
+        minedTiles = new HashSet<Vector2Int>();
 
         //generate map
         for (int i = 0; i < mapWith; i++)
@@ -30,7 +33,10 @@ public class TileManager : MonoBehaviour
 
     void Start()
     {
-
+        for (int i = 0; i < mapWith; i++)
+        {
+            MineTile(new Vector2Int(i, i));
+        }
     }
 
     void Update()
@@ -45,7 +51,8 @@ public class TileManager : MonoBehaviour
                 //check for distance
                 Vector2Int tilePos = new Vector2Int(i, j);
                 if (Vector2Int.Distance(tilePos, Player.intPos) < spawnDistance
-                    && IsTileAlive(tilePos))
+                    && !IsTileAlive(tilePos) //check status
+                    && !IsTileMined(tilePos)) //check mined status
                     SpawnTile(tilePos);
             }
         }
@@ -83,16 +90,27 @@ public class TileManager : MonoBehaviour
         if (id > 128) { Debug.LogError("Invalid tile id"); return; }
 
         byte data = (byte)(id << 1);
+        data = (byte)(data & ~1);
         tilesData[pos.x, pos.y] = data;
     }
 
     public void SetTileStatus(Vector2Int pos, bool isAlive)
     {
-        tilesData[pos.x, pos.y] = (byte)(tilesData[pos.x, pos.y] & ~0); //remove current state
+        tilesData[pos.x, pos.y] = (byte)(tilesData[pos.x, pos.y] & ~1); //remove current state
 
         if (isAlive)
         {
-            tilesData[pos.x, pos.y] = (byte)(tilesData[pos.x, pos.y] & 1); //set status to alive
+            tilesData[pos.x, pos.y] = (byte)(tilesData[pos.x, pos.y] | 1); //set status to alive
         }
+    }
+
+    public void MineTile(Vector2Int pos)
+    {
+        minedTiles.Add(pos);
+    }
+
+    private bool IsTileMined(Vector2Int pos)
+    {
+        return minedTiles.Contains(pos);
     }
 }
