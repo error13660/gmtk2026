@@ -26,14 +26,35 @@ public class Tile : MonoBehaviour
     {
         if (!Player.isMining) { mineTime = 0; return; }
 
-        //The player is mining. Is it mining this tile?
-        bool isInRange = (IsInRange(Player.mineFPos, .99f));
-
-        if (isInRange) mineTime += Time.deltaTime;
-        if (mineTime > .5f)
+        switch (tileId)
         {
-            TileManager.instance.MineTile(pos);
-            TileManager.instance.DespawnTile(pos, this);
+            case 0:
+                {
+                    //The player is mining. Is it mining this tile?
+                    bool isInRange = (IsInRange(Player.mineFPos, .99f));
+                    if (isInRange) mineTime += Time.deltaTime;
+                    if (mineTime > .5f)
+                    {
+                        TileManager.instance.MineTile(pos);
+                        TileManager.instance.DespawnTile(pos, this);
+                    }
+                    return;
+                }
+            case 1:
+                {
+                    //The player is mining. Is it mining this tile?
+                    bool isInRange = (IsInRange(Player.mineFPos, .99f));
+                    if (isInRange) mineTime += Time.deltaTime;
+                    if (mineTime > 1f)
+                    {
+                        TileManager.instance.MineTile(pos);
+                        TileManager.instance.DespawnTile(pos, this);
+                    }
+                    return;
+                }
+
+            default:
+                break;
         }
     }
 

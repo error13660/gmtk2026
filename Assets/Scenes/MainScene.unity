@@ -119,6 +119,51 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &44576953
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 44576955}
+  - component: {fileID: 44576954}
+  m_Layer: 0
+  m_Name: NoisePatterns
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &44576954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 44576953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c374902e707e9b248b7d8df8580cfecb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pattern1: {fileID: 2800000, guid: 69d04ef1c84e16847a9add51e867f236, type: 3}
+--- !u!4 &44576955
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 44576953}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1242779143
 GameObject:
   m_ObjectHideFlags: 0
@@ -344,6 +389,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileset:
   - {fileID: 11400000, guid: 7b8b267a3479cc34eb02a138ea2b1d82, type: 2}
+  - {fileID: 11400000, guid: ff5c8a674f35e204794e2e5989b8ce16, type: 2}
   tilePrefab: {fileID: 7843060064823228122, guid: 32b60e261ac028544b8281c4e2fc8119, type: 3}
 --- !u!114 &1466873848
 MonoBehaviour:
@@ -361,7 +407,7 @@ MonoBehaviour:
   mapHeight: 1024
   mapSeed: 0
   tilePool: {fileID: 1466873847}
-  spawnDistance: 10
+  spawnDistance: 16
 --- !u!4 &1466873849
 Transform:
   m_ObjectHideFlags: 0
@@ -636,7 +682,7 @@ Transform:
   m_GameObject: {fileID: 2134960947}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -22}
+  m_LocalPosition: {x: 0, y: 0, z: -27}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -693,3 +739,4 @@ SceneRoots:
   - {fileID: 1242779146}
   - {fileID: 1466873849}
   - {fileID: 1405074266}
+  - {fileID: 44576955}

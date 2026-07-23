@@ -21,14 +21,34 @@ public class TileManager : MonoBehaviour
         tilesData = new byte[mapWith, mapHeight];
         minedTiles = new HashSet<Vector2Int>();
 
-        //generate map
+        //generate map ---
+        //place base materials
+        /*
+         * Each biome has it's unique base materials.
+         * The base material is determined by the 'height' value that is the sum of the
+         * true height and a fractal noise function.
+         * Special biomes can also be placed when a second fractal noise function ('weirdness') reaches a
+         * high enough or specific value. 'height' is also a factor in this case.
+         */
         for (int i = 0; i < mapWith; i++)
         {
             for (int j = 0; j < mapHeight; j++)
             {
-                SetTileId(new Vector2Int(i, j), 0);
+                Vector2Int pos = new Vector2Int(i, j);
+                float height = pos.y + (int)(NoisePatterns.Instance.Pattern1(pos*2) * 30f);
+
+                //tid 0
+                if (height < 30) SetTileId(pos, 0);
+                else SetTileId(pos, 1);
             }
         }
+
+
+        //place veins
+        /*
+         * On top of the base materials of biomes, biome specific vein-like clumps of special materials can appear.
+         * Thes can be siginificantly harder or easier to mine, making optimal traversal more exciting.
+         */
     }
 
     void Start()
