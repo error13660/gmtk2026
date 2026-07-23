@@ -10,20 +10,14 @@ public class LeaderboardRowUI : MonoBehaviour
     [SerializeField] private TMP_Text depthText;
 
     public void SetData(
-        int position,
-        LeaderboardPlayerData playerData
-    )
+    int position,
+    LeaderboardEntry player
+)
     {
-        if (playerData == null)
-        {
-            Debug.LogError("A játékos adata nem lehet null.");
-            return;
-        }
-
         positionText.text = position.ToString();
-        playerNameText.text = playerData.playerName;
-        scoreText.text = playerData.score.ToString("N0");
-        depthText.text = $"{playerData.depth} m";
+        playerNameText.text = player.player_name;
+        scoreText.text = player.score.ToString();
+        depthText.text = player.depth.ToString();
     }
 
 }

@@ -346,7 +346,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rowPrefab: {fileID: 1542167124321941184, guid: 01e8967e040a9624582625e46fc8597e, type: 3}
   tableContent: {fileID: 1897503105}
-  jsonFileName: leaderboard.json
+  apiUrl: https://dzsepetto.hu/gmtk_api/gmtk_api.php
 --- !u!1 &204340016
 GameObject:
   m_ObjectHideFlags: 0
