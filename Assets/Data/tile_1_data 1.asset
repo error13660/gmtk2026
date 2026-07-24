@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75798b28d78ebec4890aec111cc42bb6, type: 3}
   m_Name: tile_1_data 1
   m_EditorClassIdentifier: 
-  mesh: {fileID: -2319181992924900127, guid: 934bec49e0f481b44a7477b03392ce55, type: 3}
+  mesh: {fileID: 7295510591336801678, guid: 1008d09b771a84e4a9316785c00c2dd6, type: 3}
   extraDetail: {fileID: 0}
+  isRandom: 1

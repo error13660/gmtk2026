@@ -63,9 +63,11 @@ public class Tile : MonoBehaviour
         GetComponent<MeshFilter>().mesh = mesh;
     }
 
-    public void SetExtraObject(GameObject eo)
+    public void SetExtraObject(GameObject eo, bool isRandom)
     {
+        if (UnityEngine.Random.Range(0, 5) > 1) return;
         extraDetail = Instantiate(eo, transform);
+        extraDetail.transform.localPosition = Vector3.zero;
     }
 
     public void SetPos(Vector2Int pos)

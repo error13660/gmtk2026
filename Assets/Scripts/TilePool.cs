@@ -34,7 +34,7 @@ public class TilePool : MonoBehaviour
 
         //prepare tile
         tile.SetMesh(tileset[tileId].mesh);
-        if (tileset[tileId].extraDetail != null) tile.SetExtraObject(tileset[tileId].extraDetail);
+        if (tileset[tileId].extraDetail != null) tile.SetExtraObject(tileset[tileId].extraDetail, tileset[tileId].isRandom);
         tile.SetPos(pos);
         tile.SetTileId(tileId);
         tile.gameObject.SetActive(true);
