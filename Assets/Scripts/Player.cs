@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 [SelectionBase]
+[RequireComponent(typeof(AudioSource))]
 public class Player : MonoBehaviour
 {
     public static Vector2Int intPos = Vector2Int.zero;
@@ -12,9 +13,19 @@ public class Player : MonoBehaviour
     [SerializeField] private float moveSpeed = .1f;
     [SerializeField] private new Camera camera;
     [SerializeField] Transform mineMarker;
+    private AudioSource audioSource;
+    private float audioEase = 0;
+
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+        audioSource.volume = 0;
+    }
 
     void Update()
     {
+        EaseAudio();
+
         Vector2 direction = Vector2.zero;
         isMining = false;
         Vector2 newPos;
@@ -64,5 +75,15 @@ public class Player : MonoBehaviour
                 return;
             }
         }
+    }
+
+    private void EaseAudio()
+    {
+        if (isMining) audioEase += .5f * Time.deltaTime;
+        else audioEase -= .5f * Time.deltaTime;
+
+        audioEase = Mathf.Clamp01(audioEase);
+        audioSource.volume = Mathf.SmoothStep(0, 1, audioEase);
+        audioSource.pitch = Mathf.SmoothStep(.7f, 1.1f, audioEase);
     }
 }
