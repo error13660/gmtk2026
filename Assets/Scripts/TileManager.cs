@@ -31,6 +31,7 @@ public class TileManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
+
         tilesData = new byte[mapWith, mapHeight];
         minedTiles = new HashSet<Vector2Int>();
 
@@ -62,8 +63,31 @@ public class TileManager : MonoBehaviour
          * Thes can be siginificantly harder or easier to mine, making optimal traversal more exciting.
          */
 
-        //place clay veins
+        //place silt veins
+        {
+            Vector2Int OffsetFunc(Vector2Int pos)
+            {
+                pos += new Vector2Int(UnityEngine.Random.Range(-10, 10), UnityEngine.Random.Range(7, 20));
+                pos = new Vector2Int(Mathf.Clamp(pos.x, 0, mapWith - 1), Mathf.Clamp(pos.y, 0, mapHeight - 1));
+                return pos;
+            }
 
+            float ValueFunc(Vector2 spDir, int nNeighbors, float spDist)
+            {
+                if (spDist < 2.5f) return 100;
+                return Mathf.Pow(1 / spDist, 1.2f) * Mathf.Abs(Vector2.Dot(spDir, Vector2.right)) + UnityEngine.Random.Range(0, .5f);
+            }
+
+            Vector2Int[] spawnPoints = GetVeinBasePoints(4);
+            for (int i = 0; i < 6; i++)
+            {
+                spawnPoints = GetNextVeinSpawnPoints(spawnPoints, OffsetFunc);
+                for (int j = 0; j < spawnPoints.Length; j++)
+                {
+                    GenerateVein(spawnPoints[j], 55, 2, ValueFunc);
+                }
+            }
+        }
     }
 
     void Start()
@@ -188,6 +212,8 @@ public class TileManager : MonoBehaviour
         {
             for (int i = 0; i < tiles.Length; i++)
             {
+                if (tiles[i].x < 0 || tiles[i].x >= mapWith ||
+                    tiles[i].y < 0 || tiles[i].y >= mapHeight) continue;
                 if (GetTileId(tiles[i]) == tileId) continue;
                 if (workingTiles.Contains(tiles[i])) continue;
                 workingTiles.Add(tiles[i]);
@@ -200,8 +226,9 @@ public class TileManager : MonoBehaviour
         for (int i = 0; i < iterations; i++)
         {
             Vector2Int bestPos = workingTiles[0];
+            int bestI = 0;
             float bestValue = valueFunc.Invoke(
-                (Vector2)(workingTiles[0] - spawnPoint),
+                ((Vector2)(workingTiles[0] - spawnPoint)).normalized,
                 NumberOfNeighboring(workingTiles[0], tileId),
                 Vector2.Distance(spawnPoint, workingTiles[0]));
 
@@ -209,14 +236,15 @@ public class TileManager : MonoBehaviour
             for (int j = 1; j < workingTiles.Count; j++)
             {
                 float value = valueFunc.Invoke(
-                (Vector2)(workingTiles[i] - spawnPoint),
-                NumberOfNeighboring(workingTiles[i], tileId),
-                Vector2.Distance(spawnPoint, workingTiles[i]));
-                if (value > bestValue) { bestValue = value; bestPos = workingTiles[i]; }
+                (Vector2)(workingTiles[j] - spawnPoint),
+                NumberOfNeighboring(workingTiles[j], tileId),
+                Vector2.Distance(spawnPoint, workingTiles[j]));
+                if (value > bestValue) { bestValue = value; bestPos = workingTiles[j]; bestI = j; }
             }
             //place tile
             SetTileId(bestPos, tileId);
             AddValidTiles(NeighboringTiles(bestPos));
+            workingTiles.RemoveAt(bestI);
         }
     }
 
@@ -228,6 +256,8 @@ public class TileManager : MonoBehaviour
     {
         for (int i = 0; i < OFFSETS.Length; i++)
         {
+            if ((pos + OFFSETS[i]).x < 0 || (pos + OFFSETS[i]).x >= mapWith ||
+                    (pos + OFFSETS[i]).y < 0 || (pos + OFFSETS[i]).y >= mapHeight) continue;
             if (GetTileId(pos + OFFSETS[i]) == tileId) return true;
         }
         return false;
@@ -240,6 +270,8 @@ public class TileManager : MonoBehaviour
         int n = 0;
         for (int i = 0; i < OFFSETS.Length; i++)
         {
+            if ((pos + OFFSETS[i]).x < 0 || (pos + OFFSETS[i]).x >= mapWith ||
+                (pos + OFFSETS[i]).y < 0 || (pos + OFFSETS[i]).y >= mapHeight) continue;
             if (GetTileId(pos + OFFSETS[i]) == tileId) n++;
         }
         return n;

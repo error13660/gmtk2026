@@ -17,6 +17,7 @@ public class Player : MonoBehaviour
     {
         Vector2 direction = Vector2.zero;
         isMining = false;
+        Vector2 newPos;
 
         //move
         Ray ray = camera.ScreenPointToRay(Input.mousePosition);
@@ -29,11 +30,9 @@ public class Player : MonoBehaviour
             Vector2 playerPos = transform.position;
             direction = (hitPos - playerPos).normalized;
 
-            //move if possible
-            if (!Physics2D.CircleCast(transform.position, .25f, direction, moveSpeed * Time.deltaTime, 1 << 7))
-            {
-                transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
-            }
+            newPos = transform.position;
+            CollideAndSlide(direction * moveSpeed * Time.deltaTime, 4);
+            transform.position = newPos;
         }
         Vector2 minePos = new Vector2(transform.position.x, Mathf.Abs(transform.position.y));
         mineFPos = minePos + (new Vector2(direction.x, -direction.y));
@@ -44,5 +43,26 @@ public class Player : MonoBehaviour
         fPos = new Vector2(transform.position.x, -transform.position.y);
 
         mineMarker.position = new Vector3(minePos.x, minePos.y * -1, 0) + (Vector3)direction;
+
+
+        void CollideAndSlide(Vector2 travel, int depth)
+        {
+            if (depth <= 0) return;
+
+            //move if possible
+            RaycastHit2D hit;
+            if (hit = Physics2D.CircleCast((Vector2)transform.position, .2f, travel.normalized, travel.magnitude, 1 << 7))
+            {
+                newPos += (travel.normalized * (hit.distance - .05f));
+                Vector2 newDirection = Vector3.ProjectOnPlane(travel, hit.normal).normalized;
+                CollideAndSlide(newDirection * (travel.magnitude - (hit.distance - .05f)), depth - 1);
+                return;
+            }
+            else
+            {
+                newPos += travel;
+                return;
+            }
+        }
     }
 }

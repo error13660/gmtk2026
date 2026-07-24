@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75798b28d78ebec4890aec111cc42bb6, type: 3}
+  m_Name: tile_dust
+  m_EditorClassIdentifier: 
+  mesh: {fileID: 1299235832498755210, guid: dc200084d3813074da9cbf21f365919c, type: 3}
+  extraDetail: {fileID: 919132149155446097, guid: 85cb029dd800e584abb3b5e5c148f7f4, type: 3}
+  isRandom: 1
