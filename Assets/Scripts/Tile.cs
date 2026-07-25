@@ -22,6 +22,25 @@ public class Tile : MonoBehaviour
         EvaluateMining();
     }
 
+    private void OnEnable()
+    {
+        TileManager.instance.MineBroadcast += OnMineBroadcast;
+    }
+
+    private void OnDisable()
+    {
+        TileManager.instance.MineBroadcast -= OnMineBroadcast;
+    }
+
+    void OnMineBroadcast(Vector2Int pos)
+    {
+        if (pos == this.pos)
+        {
+            TileManager.instance.MineTile(pos);
+            TileManager.instance.DespawnTile(pos, this);
+        }
+    }
+
     private void EvaluateMining()
     {
         if (!Player.isMining) { mineTime = 0; return; }
@@ -37,6 +56,7 @@ public class Tile : MonoBehaviour
                     {
                         TileManager.instance.MineTile(pos);
                         TileManager.instance.DespawnTile(pos, this);
+                        Upgrades.Instance.OnDustMined();
                     }
                     return;
                 }
@@ -45,13 +65,15 @@ public class Tile : MonoBehaviour
                     //The player is mining. Is it mining this tile?
                     bool isInRange = (IsInRange(Player.mineFPos, .99f));
                     if (isInRange) mineTime += Time.deltaTime;
-                    if (mineTime > 1f)
+                    if (mineTime > 2f)
                     {
                         TileManager.instance.MineTile(pos);
                         TileManager.instance.DespawnTile(pos, this);
+                        Upgrades.Instance.OnStoneMined();
                     }
                     return;
                 }
+
             case 2:
                 {
                     //The player is mining. Is it mining this tile?
@@ -61,9 +83,63 @@ public class Tile : MonoBehaviour
                     {
                         TileManager.instance.MineTile(pos);
                         TileManager.instance.DespawnTile(pos, this);
+                        Upgrades.Instance.OnSiltMined();
                     }
                     return;
                 }
+            case 3:
+                {
+                    //The player is mining. Is it mining this tile?
+                    bool isInRange = (IsInRange(Player.mineFPos, .99f));
+                    if (isInRange) mineTime += Time.deltaTime;
+                    if (mineTime > .25f)
+                    {
+                        TileManager.instance.MineTile(pos);
+                        TileManager.instance.DespawnTile(pos, this);
+                        Upgrades.Instance.OnQuartzMined(pos);
+                    }
+                    return;
+                }
+            case 4:
+                {
+                    //The player is mining. Is it mining this tile?
+                    bool isInRange = (IsInRange(Player.mineFPos, .99f));
+                    if (isInRange) mineTime += Time.deltaTime;
+                    if (mineTime > .25f)
+                    {
+                        TileManager.instance.MineTile(pos);
+                        TileManager.instance.DespawnTile(pos, this);
+                        Upgrades.Instance.OnBasaltMined(pos);
+                    }
+                    return;
+                }
+            case 5:
+                {
+                    //The player is mining. Is it mining this tile?
+                    bool isInRange = (IsInRange(Player.mineFPos, .99f));
+                    if (isInRange) mineTime += Time.deltaTime;
+                    if (mineTime > .25f)
+                    {
+                        TileManager.instance.MineTile(pos);
+                        TileManager.instance.DespawnTile(pos, this);
+                        Upgrades.Instance.OnClayMined();
+                    }
+                    return;
+                }
+            case 6:
+                {
+                    //The player is mining. Is it mining this tile?
+                    bool isInRange = (IsInRange(Player.mineFPos, .99f));
+                    if (isInRange) mineTime += Time.deltaTime;
+                    if (mineTime > .25f)
+                    {
+                        TileManager.instance.MineTile(pos);
+                        TileManager.instance.DespawnTile(pos, this);
+                        Upgrades.Instance.OnGraniteMined();
+                    }
+                    return;
+                }
+
 
             default:
                 break;

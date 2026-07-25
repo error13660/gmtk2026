@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 [SelectionBase]
 [RequireComponent(typeof(AudioSource))]
@@ -16,7 +17,9 @@ public class Player : MonoBehaviour
     [SerializeField] private float moveSpeed = .1f;
     [SerializeField] private new Camera camera;
     [SerializeField] Transform mineMarker;
-    private AudioSource audioSource;
+    [SerializeField] private AudioSource drillAudioSource;
+    [SerializeField] private AudioSource musicAudioSource;
+    private float musicVolume;
     private float audioEase = 0;
     private bool isControlLockout = false;
     [SerializeField] private GameObject augmentAquiredDisplay;
@@ -27,8 +30,8 @@ public class Player : MonoBehaviour
     {
         Instance = this;
 
-        audioSource = GetComponent<AudioSource>();
-        audioSource.volume = 0;
+        drillAudioSource.volume = 0;
+        musicVolume = musicAudioSource.volume;
     }
 
     private void Start()
@@ -100,8 +103,9 @@ public class Player : MonoBehaviour
         else audioEase -= .5f * Time.deltaTime;
 
         audioEase = Mathf.Clamp01(audioEase);
-        audioSource.volume = Mathf.SmoothStep(0, 1, audioEase);
-        audioSource.pitch = Mathf.SmoothStep(.7f, 1.1f, audioEase);
+        drillAudioSource.volume = Mathf.SmoothStep(0, 1, audioEase);
+        drillAudioSource.pitch = Mathf.SmoothStep(.7f, 1.1f, audioEase);
+        musicAudioSource.volume = Mathf.SmoothStep(1, .7f, audioEase);
     }
 
     private void SubtractTime()
@@ -113,6 +117,18 @@ public class Player : MonoBehaviour
         {
             timeRemaining = 0;
             isControlLockout = true;
+            StartCoroutine(ExitScene());
+        }
+
+        IEnumerator ExitScene()
+        {
+            float startTime = Time.time;
+            while (Time.time - startTime < 5f)
+            {
+                float t = 1-((Time.time - startTime) / 5f);
+                musicAudioSource.volume = musicVolume * t;
+                yield return null;
+            }
             SceneManager.LoadSceneAsync(1);
         }
     }

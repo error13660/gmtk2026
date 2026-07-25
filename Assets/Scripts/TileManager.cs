@@ -28,6 +28,11 @@ public class TileManager : MonoBehaviour
             new Vector2Int(1,1),
         };
 
+    /// <summary>
+    /// Tiles can register to get notifications about being mined by an augment effect
+    /// </summary>
+    public System.Action<Vector2Int> MineBroadcast = (v2i) => { };
+
     private void Awake()
     {
         instance = this;
@@ -117,6 +122,7 @@ public class TileManager : MonoBehaviour
         }
     }
 
+    #region general functions
     private void SpawnTile(Vector2Int pos)
     {
         int id = GetTileId(pos);
@@ -277,7 +283,7 @@ public class TileManager : MonoBehaviour
         return n;
     }
 
-    private Vector2Int[] NeighboringTiles(Vector2Int pos)
+    public Vector2Int[] NeighboringTiles(Vector2Int pos)
     {
         Vector2Int[] tiles = new Vector2Int[OFFSETS.Length];
         for (int i = 0; i < OFFSETS.Length; i++)
@@ -286,4 +292,43 @@ public class TileManager : MonoBehaviour
         }
         return tiles;
     }
+
+    /// <summary>
+    /// Sets the given tiles as mined
+    /// </summary>
+    /// <param name="tiles"></param>
+    public void MineTiles(Vector2Int[] tiles)
+    {
+        for (int i = 0; i < tiles.Length; i++)
+        {
+            MineBroadcast.Invoke(tiles[i]);
+        }
+    }
+
+    /// <summary>
+    /// Returns all connected tiles of one type
+    /// </summary>
+    public Vector2Int[] GetClumpedTiles(Vector2Int startPos,int tileId)
+    {
+        List<Vector2Int> workingTiles = new List<Vector2Int>();
+        void AddValidTiles(Vector2Int[] tiles)
+        {
+            for (int i = 0; i < tiles.Length; i++)
+            {
+                if (tiles[i].x < 0 || tiles[i].x >= mapWith ||
+                    tiles[i].y < 0 || tiles[i].y >= mapHeight) continue;
+                if (GetTileId(tiles[i]) == tileId) continue;
+                if (workingTiles.Contains(tiles[i])) continue;
+
+                //add and recourse
+                workingTiles.Add(tiles[i]);
+                AddValidTiles(NeighboringTiles(tiles[i]));
+            }
+        }
+
+        AddValidTiles(new Vector2Int[] { startPos });
+        return workingTiles.ToArray();
+    }
+
+    #endregion
 }
