@@ -1,11 +1,14 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEngine.SceneManagement;
 
 [SelectionBase]
 [RequireComponent(typeof(AudioSource))]
 public class Player : MonoBehaviour
 {
+    public static Player Instance { get; private set; }
+
     public static Vector2Int intPos = Vector2Int.zero;
     public static Vector2 fPos = Vector2.zero;
     public static Vector2 mineFPos = Vector2.zero;
@@ -15,20 +18,34 @@ public class Player : MonoBehaviour
     [SerializeField] Transform mineMarker;
     private AudioSource audioSource;
     private float audioEase = 0;
+    private bool isControlLockout = false;
+    [SerializeField] private GameObject augmentAquiredDisplay;
+
+    public float timeRemaining = 60f;
 
     private void Awake()
     {
+        Instance = this;
+
         audioSource = GetComponent<AudioSource>();
         audioSource.volume = 0;
+    }
+
+    private void Start()
+    {
+        augmentAquiredDisplay.SetActive(true);
     }
 
     void Update()
     {
         EaseAudio();
+        SubtractTime();
 
         Vector2 direction = Vector2.zero;
         isMining = false;
         Vector2 newPos;
+
+        if (isControlLockout) return;
 
         //move
         Ray ray = camera.ScreenPointToRay(Input.mousePosition);
@@ -45,7 +62,7 @@ public class Player : MonoBehaviour
             CollideAndSlide(direction * moveSpeed * Time.deltaTime, 4);
             transform.position = newPos;
         }
-        Vector2 minePos = new Vector2(transform.position.x, Mathf.Abs(transform.position.y));
+        Vector2 minePos = new Vector2(transform.position.x, -(transform.position.y));
         mineFPos = minePos + (new Vector2(direction.x, -direction.y));
 
 
@@ -85,5 +102,18 @@ public class Player : MonoBehaviour
         audioEase = Mathf.Clamp01(audioEase);
         audioSource.volume = Mathf.SmoothStep(0, 1, audioEase);
         audioSource.pitch = Mathf.SmoothStep(.7f, 1.1f, audioEase);
+    }
+
+    private void SubtractTime()
+    {
+        if (isControlLockout) return;
+
+        timeRemaining -= Time.deltaTime;
+        if (timeRemaining <= 0)
+        {
+            timeRemaining = 0;
+            isControlLockout = true;
+            SceneManager.LoadSceneAsync(1);
+        }
     }
 }
