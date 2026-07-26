@@ -229,6 +229,8 @@ public class TileManager : MonoBehaviour
         SetTileId(spawnPoint, tileId);
         AddValidTiles(NeighboringTiles(spawnPoint));
 
+        if (workingTiles.Count == 0) return;
+
         for (int i = 0; i < iterations; i++)
         {
             Vector2Int bestPos = workingTiles[0];

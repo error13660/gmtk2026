@@ -14,6 +14,8 @@ public class Player : MonoBehaviour
     public static Vector2 fPos = Vector2.zero;
     public static Vector2 mineFPos = Vector2.zero;
     public static bool isMining = false;
+    public static float mineScale = 1;
+    private Vector2 lookDirection = Vector2.zero;
     [SerializeField] private float moveSpeed = .1f;
     [SerializeField] private new Camera camera;
     [SerializeField] Transform mineMarker;
@@ -60,9 +62,11 @@ public class Player : MonoBehaviour
             Vector2 hitPos = hit.point;
             Vector2 playerPos = transform.position;
             direction = (hitPos - playerPos).normalized;
+            lookDirection = direction;
 
+            SetMineScale();
             newPos = transform.position;
-            CollideAndSlide(direction * moveSpeed * Time.deltaTime, 4);
+            CollideAndSlide(direction * moveSpeed * Time.deltaTime * mineScale, 4);
             transform.position = newPos;
         }
         Vector2 minePos = new Vector2(transform.position.x, -(transform.position.y));
@@ -97,6 +101,19 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void SetMineScale()
+    {
+        mineScale = 1;
+        if (Upgrades.isLevelFuelTank
+            && lookDirection != Vector2.zero
+            && Mathf.Acos(Mathf.Abs(Vector2.Dot(lookDirection, Vector2.right))) < 30f)
+            mineScale *= 1.5f; //150% speed when level
+        if (Upgrades.isStraightShooter
+            && lookDirection != Vector2.zero
+            && Mathf.Acos(Vector2.Dot(lookDirection, Vector2.down)) < 15f)
+            mineScale *= 1.5f; //150% speed when going straight down
+    }
+
     private void EaseAudio()
     {
         if (isMining) audioEase += .5f * Time.deltaTime;
@@ -125,11 +142,11 @@ public class Player : MonoBehaviour
             float startTime = Time.time;
             while (Time.time - startTime < 5f)
             {
-                float t = 1-((Time.time - startTime) / 5f);
+                float t = 1 - ((Time.time - startTime) / 5f);
                 musicAudioSource.volume = musicVolume * t;
                 yield return null;
             }
-            SceneManager.LoadSceneAsync(1);
+            SceneManager.LoadSceneAsync(0);
         }
     }
 }

@@ -51,7 +51,7 @@ public class Tile : MonoBehaviour
                 {
                     //The player is mining. Is it mining this tile?
                     bool isInRange = (IsInRange(Player.mineFPos, .99f));
-                    if (isInRange) mineTime += Time.deltaTime;
+                    if (isInRange) mineTime += Time.deltaTime * Player.mineScale;
                     if (mineTime > .5f)
                     {
                         TileManager.instance.MineTile(pos);
@@ -64,7 +64,7 @@ public class Tile : MonoBehaviour
                 {
                     //The player is mining. Is it mining this tile?
                     bool isInRange = (IsInRange(Player.mineFPos, .99f));
-                    if (isInRange) mineTime += Time.deltaTime;
+                    if (isInRange) mineTime += Time.deltaTime * Player.mineScale;
                     if (mineTime > 2f)
                     {
                         TileManager.instance.MineTile(pos);
@@ -78,7 +78,7 @@ public class Tile : MonoBehaviour
                 {
                     //The player is mining. Is it mining this tile?
                     bool isInRange = (IsInRange(Player.mineFPos, .99f));
-                    if (isInRange) mineTime += Time.deltaTime;
+                    if (isInRange) mineTime += Time.deltaTime * Player.mineScale;
                     if (mineTime > .25f)
                     {
                         TileManager.instance.MineTile(pos);
@@ -91,7 +91,7 @@ public class Tile : MonoBehaviour
                 {
                     //The player is mining. Is it mining this tile?
                     bool isInRange = (IsInRange(Player.mineFPos, .99f));
-                    if (isInRange) mineTime += Time.deltaTime;
+                    if (isInRange) mineTime += Time.deltaTime * Player.mineScale;
                     if (mineTime > .25f)
                     {
                         TileManager.instance.MineTile(pos);
@@ -104,7 +104,7 @@ public class Tile : MonoBehaviour
                 {
                     //The player is mining. Is it mining this tile?
                     bool isInRange = (IsInRange(Player.mineFPos, .99f));
-                    if (isInRange) mineTime += Time.deltaTime;
+                    if (isInRange) mineTime += Time.deltaTime * Player.mineScale;
                     if (mineTime > .25f)
                     {
                         TileManager.instance.MineTile(pos);
@@ -117,7 +117,7 @@ public class Tile : MonoBehaviour
                 {
                     //The player is mining. Is it mining this tile?
                     bool isInRange = (IsInRange(Player.mineFPos, .99f));
-                    if (isInRange) mineTime += Time.deltaTime;
+                    if (isInRange) mineTime += Time.deltaTime * Player.mineScale;
                     if (mineTime > .25f)
                     {
                         TileManager.instance.MineTile(pos);
@@ -130,7 +130,7 @@ public class Tile : MonoBehaviour
                 {
                     //The player is mining. Is it mining this tile?
                     bool isInRange = (IsInRange(Player.mineFPos, .99f));
-                    if (isInRange) mineTime += Time.deltaTime;
+                    if (isInRange) mineTime += Time.deltaTime * Player.mineScale;
                     if (mineTime > .25f)
                     {
                         TileManager.instance.MineTile(pos);
