@@ -180,7 +180,7 @@ public class Player : MonoBehaviour
 
             leaderboardApiService =
             new LeaderboardApiService(apiUrl);
-            leaderboardApiService.SavePlayer(depth);
+            //leaderboardApiService.SavePlayer(depth);
 
             while (Time.time - startTime < 5f)
             {
