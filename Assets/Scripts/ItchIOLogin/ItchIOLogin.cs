@@ -8,7 +8,8 @@ public class ItchOAuthLogin : MonoBehaviour
     [Header("itch.io OAuth")]
 
     [SerializeField]
-    private string clientId = "IDE_JON_A_CLIENT_ID";
+    private string clientId =
+        "IDE_JON_A_CLIENT_ID";
 
     [SerializeField]
     private string callbackUrl =
@@ -28,38 +29,32 @@ public class ItchOAuthLogin : MonoBehaviour
     [SerializeField]
     private float loginTimeoutSeconds = 300f;
 
-    [Header("Bejelentkezett itch.io felhasználó")]
-
-    [SerializeField]
-    private long itchUserId;
-
-    [SerializeField]
-    private string itchUsername;
-
-    [SerializeField]
-    private string itchDisplayName;
-
-    [SerializeField]
-    private bool isLoggedIn;
+    [Header("Bejelentkezési állapot")]
 
     [SerializeField]
     private bool isLoginInProgress;
 
     private Coroutine pollingCoroutine;
 
-    public long ItchUserId => itchUserId;
-    public string ItchUsername => itchUsername;
-    public string ItchDisplayName => itchDisplayName;
-    public bool IsLoggedIn => isLoggedIn;
+    public bool IsLoggedIn =>
+        UserData.Instance != null &&
+        UserData.Instance.IsLoggedIn;
 
     public void LoginWithItch()
     {
-        Debug.Log("LoginWithItch meghívva.");
-
         if (isLoginInProgress)
         {
             Debug.LogWarning(
                 "Már folyamatban van egy itch.io bejelentkezés."
+            );
+
+            return;
+        }
+
+        if (UserData.Instance == null)
+        {
+            Debug.LogError(
+                "Nem található UserData singleton a jelenetben."
             );
 
             return;
@@ -95,7 +90,8 @@ public class ItchOAuthLogin : MonoBehaviour
 
         ResetLoginData();
 
-        string state = Guid.NewGuid().ToString("N");
+        string state =
+            Guid.NewGuid().ToString("N");
 
         PlayerPrefs.SetString(
             "itch_oauth_state",
@@ -116,35 +112,22 @@ public class ItchOAuthLogin : MonoBehaviour
             "&state=" +
             UnityWebRequest.EscapeURL(state);
 
-        Debug.Log(
-            "OAuth URL elkészült:\n" +
-            authorizationUrl
-        );
-
         isLoginInProgress = true;
 
-        /*
-         * Elindítjuk a pollingot még az OAuth oldal
-         * megnyitása elõtt.
-         */
         pollingCoroutine = StartCoroutine(
             CheckLoginResult(state)
         );
 
-        Application.OpenURL(authorizationUrl);
-
-        Debug.Log(
-            "Az itch.io bejelentkezési oldal megnyitva."
+        Application.OpenURL(
+            authorizationUrl
         );
     }
 
-    private IEnumerator CheckLoginResult(string state)
+    private IEnumerator CheckLoginResult(
+        string state
+    )
     {
         float elapsedTime = 0f;
-
-        Debug.Log(
-            "Várakozás az itch.io bejelentkezés eredményére..."
-        );
 
         while (elapsedTime < loginTimeoutSeconds)
         {
@@ -162,10 +145,6 @@ public class ItchOAuthLogin : MonoBehaviour
             using UnityWebRequest request =
                 UnityWebRequest.Get(requestUrl);
 
-            /*
-             * Megakadályozzuk, hogy a böngészõ egy korábbi
-             * választ cache-bõl adjon vissza.
-             */
             request.SetRequestHeader(
                 "Cache-Control",
                 "no-cache"
@@ -188,20 +167,21 @@ public class ItchOAuthLogin : MonoBehaviour
                 yield break;
             }
 
-            if (request.result !=
-                UnityWebRequest.Result.Success)
+            if (
+                request.result !=
+                UnityWebRequest.Result.Success
+            )
             {
                 Debug.LogWarning(
                     "Login státusz lekérési hiba.\n" +
-                    "HTTP: " + request.responseCode + "\n" +
-                    "Hiba: " + request.error + "\n" +
-                    "Válasz: " + responseBody
+                    "HTTP: " +
+                    request.responseCode +
+                    "\nHiba: " +
+                    request.error +
+                    "\nVálasz: " +
+                    responseBody
                 );
 
-                /*
-                 * Átmeneti hálózati hiba esetén nem állunk le,
-                 * hanem a következõ körben újrapróbáljuk.
-                 */
                 continue;
             }
 
@@ -210,15 +190,16 @@ public class ItchOAuthLogin : MonoBehaviour
             try
             {
                 response =
-                    JsonUtility.FromJson<ItchLoginStatusResponse>(
-                        responseBody
-                    );
+                    JsonUtility.FromJson<
+                        ItchLoginStatusResponse
+                    >(responseBody);
             }
             catch (Exception exception)
             {
                 Debug.LogWarning(
                     "A status API válasza nem dolgozható fel:\n" +
-                    responseBody + "\n" +
+                    responseBody +
+                    "\n" +
                     exception.Message
                 );
 
@@ -255,10 +236,6 @@ public class ItchOAuthLogin : MonoBehaviour
 
             if (response.data.status == "pending")
             {
-                Debug.Log(
-                    "Az itch.io bejelentkezés még folyamatban van..."
-                );
-
                 continue;
             }
 
@@ -290,13 +267,16 @@ public class ItchOAuthLogin : MonoBehaviour
         ItchLoginStatusData loginData
     )
     {
-        string expectedState = PlayerPrefs.GetString(
-            "itch_oauth_state",
-            string.Empty
-        );
+        string expectedState =
+            PlayerPrefs.GetString(
+                "itch_oauth_state",
+                string.Empty
+            );
 
-        if (string.IsNullOrWhiteSpace(expectedState) ||
-            expectedState != state)
+        if (
+            string.IsNullOrWhiteSpace(expectedState) ||
+            expectedState != state
+        )
         {
             Debug.LogError(
                 "Az OAuth state nem egyezik."
@@ -316,7 +296,11 @@ public class ItchOAuthLogin : MonoBehaviour
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(loginData.username))
+        if (
+            string.IsNullOrWhiteSpace(
+                loginData.username
+            )
+        )
         {
             Debug.LogError(
                 "Nem érkezett itch.io felhasználónév."
@@ -326,23 +310,33 @@ public class ItchOAuthLogin : MonoBehaviour
             return;
         }
 
-        itchUserId = loginData.id;
-        itchUsername = loginData.username;
-        itchDisplayName = loginData.display_name;
-        isLoggedIn = true;
+        if (UserData.Instance == null)
+        {
+            Debug.LogError(
+                "Nem található UserData singleton."
+            );
+
+            FinishLoginAttempt();
+            return;
+        }
+
+        string selectedUserName =
+            string.IsNullOrWhiteSpace(
+                loginData.display_name
+            )
+                ? loginData.username
+                : loginData.display_name;
+
+        UserData.Instance.SetUser(
+            loginData.id,
+            selectedUserName
+        );
 
         PlayerPrefs.DeleteKey(
             "itch_oauth_state"
         );
 
         PlayerPrefs.Save();
-
-        Debug.Log(
-            "Sikeres itch.io bejelentkezés!\n" +
-            "ID: " + itchUserId + "\n" +
-            "Username: " + itchUsername + "\n" +
-            "Display name: " + itchDisplayName
-        );
 
         FinishLoginAttempt();
 
@@ -351,24 +345,29 @@ public class ItchOAuthLogin : MonoBehaviour
 
     private void OnItchLoginSuccessful()
     {
-        string playerName =
-            string.IsNullOrWhiteSpace(itchDisplayName)
-                ? itchUsername
-                : itchDisplayName;
+        /*
+         * A felhasználó adatai innentõl:
+         *
+         * UserData.Instance.UserId
+         * UserData.Instance.UserName
+         * UserData.Instance.IsLoggedIn
+         */
+    }
 
-        Debug.Log(
-            "Leaderboard játékosnév: " + playerName
+    public void Logout()
+    {
+        if (UserData.Instance != null)
+        {
+            UserData.Instance.ClearUser();
+        }
+
+        PlayerPrefs.DeleteKey(
+            "itch_oauth_state"
         );
 
-        /*
-         * Itt tudod frissíteni a UI-t vagy meghívni
-         * a leaderboard rendszeredet.
-         *
-         * Például:
-         *
-         * loginStatusText.text =
-         *     "Belépve: " + playerName;
-         */
+        PlayerPrefs.Save();
+
+        ResetLoginData();
     }
 
     private void FinishLoginAttempt()
@@ -381,22 +380,29 @@ public class ItchOAuthLogin : MonoBehaviour
     {
         if (pollingCoroutine != null)
         {
-            StopCoroutine(pollingCoroutine);
+            StopCoroutine(
+                pollingCoroutine
+            );
+
             pollingCoroutine = null;
         }
 
-        itchUserId = 0;
-        itchUsername = string.Empty;
-        itchDisplayName = string.Empty;
-        isLoggedIn = false;
         isLoginInProgress = false;
+
+        if (UserData.Instance != null)
+        {
+            UserData.Instance.ClearUser();
+        }
     }
 
     private void OnDestroy()
     {
         if (pollingCoroutine != null)
         {
-            StopCoroutine(pollingCoroutine);
+            StopCoroutine(
+                pollingCoroutine
+            );
+
             pollingCoroutine = null;
         }
     }
