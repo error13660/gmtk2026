@@ -64,25 +64,25 @@ public class UpgradeGui : MonoBehaviour
         switch (augmentType)
         {
             case AugmentType.LEVELFUELTANK:
-                descriptionDisplay.SetText("Level fuel tank: ");
+                descriptionDisplay.SetText("Level fuel tank: Keeping your vehicle relatively level slightly increases your mining and movement speed.");
                 break;
             case AugmentType.STRAIGHTSHOOTER:
-                descriptionDisplay.SetText("Straight shooter: ");
+                descriptionDisplay.SetText("Straight shooter: Drilling straight down slightly increases your mining and movement speed.");
                 break;
             case AugmentType.VEINCRACKER:
-                descriptionDisplay.SetText("Vein cracker: ");
+                descriptionDisplay.SetText("Vein cracker: Basalt veins become significantly easier to mine. Mining basalt also cracks and destroys surrounding rock.");
                 break;
             case AugmentType.DECISIVEHIT:
-                descriptionDisplay.SetText("Decisive hit: ");
+                descriptionDisplay.SetText("Decisive hit: Quickly mining a section of quartz pillars cracks and destroys the whole deposit instantly.");
                 break;
             case AugmentType.AQUIREDGRIT:
-                descriptionDisplay.SetText("Aquired grit: ");
+                descriptionDisplay.SetText("Aquired grit: Mining silt coats your drill in abresive grit, greatly increasing your mining and movement speed until the grit wears off.");
                 break;
             case AugmentType.GEARBOXOVERDRIVE:
-                descriptionDisplay.SetText("Gearbox overdrive: ");
+                descriptionDisplay.SetText("Gearbox overdrive: Moving fast allows you to accelerate further.");
                 break;
             case AugmentType.EXTRAAUGMENTSLOT:
-                descriptionDisplay.SetText("Extra augment slot: ");
+                descriptionDisplay.SetText("Extra augment slot: Unlock an extra augment slot.");
                 break;
             default:
                 break;
@@ -189,27 +189,27 @@ public class UpgradeGui : MonoBehaviour
         switch (augmentType)
         {
             case AugmentType.LEVELFUELTANK:
-                if (Upgrades.isLevelFuelTank) transform.position = basePosition + Vector3.up;
+                if (Upgrades.isLevelFuelTank) transform.position = basePosition + Vector3.up + (Vector3.up * Mathf.Sin(Time.time * 10) * .25f);
                 else transform.position = basePosition;
                 break;
             case AugmentType.STRAIGHTSHOOTER:
-                if (Upgrades.isStraightShooter) transform.position = basePosition + Vector3.up;
+                if (Upgrades.isStraightShooter) transform.position = basePosition + Vector3.up + (Vector3.up * Mathf.Sin(Time.time * 10) * .25f);
                 else transform.position = basePosition;
                 break;
             case AugmentType.VEINCRACKER:
-                if (Upgrades.isVeinCracker) transform.position = basePosition + Vector3.up;
+                if (Upgrades.isVeinCracker) transform.position = basePosition + Vector3.up + (Vector3.up * Mathf.Sin(Time.time * 10) * .25f);
                 else transform.position = basePosition;
                 break;
             case AugmentType.DECISIVEHIT:
-                if (Upgrades.isDecisiveHit) transform.position = basePosition + Vector3.up;
+                if (Upgrades.isDecisiveHit) transform.position = basePosition + Vector3.up + (Vector3.up * Mathf.Sin(Time.time * 10) * .25f);
                 else transform.position = basePosition;
                 break;
             case AugmentType.AQUIREDGRIT:
-                if (Upgrades.isAquiredGrit) transform.position = basePosition + Vector3.up;
+                if (Upgrades.isAquiredGrit) transform.position = basePosition + Vector3.up + (Vector3.up * Mathf.Sin(Time.time * 10) * .25f);
                 else transform.position = basePosition;
                 break;
             case AugmentType.GEARBOXOVERDRIVE:
-                if (Upgrades.isGearboxOverdrive) transform.position = basePosition + Vector3.up;
+                if (Upgrades.isGearboxOverdrive) transform.position = basePosition + Vector3.up + (Vector3.up * Mathf.Sin(Time.time * 10) * .25f);
                 else transform.position = basePosition;
                 break;
             case AugmentType.EXTRAAUGMENTSLOT:

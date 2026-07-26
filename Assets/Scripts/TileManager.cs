@@ -7,7 +7,7 @@ public class TileManager : MonoBehaviour
 {
     public static TileManager instance;
 
-    [SerializeField] private int mapWith;
+    [SerializeField] public int mapWith;
     [SerializeField] private int mapHeight;
     private byte[,] tilesData; //stores the tile ids and their alive state 0000000/0 id/state
     [SerializeField] private int mapSeed;

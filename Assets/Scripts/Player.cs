@@ -31,6 +31,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Transform model;
 
     public float timeRemaining = 60f;
+    public int depth = 0;
 
     private void Awake()
     {
@@ -84,7 +85,7 @@ public class Player : MonoBehaviour
             newPos = transform.position;
             CollideAndSlide(direction * moveSpeed * Time.deltaTime * mineScale * gearboxSpeed, 4);
             actualSpeedTally += Vector3.Distance(transform.position, newPos);
-            transform.position = newPos;
+            transform.position = new Vector2(Mathf.Clamp(newPos.x, 0, TileManager.instance.mapWith), newPos.y);
         }
         Vector2 minePos = new Vector2(transform.position.x, -(transform.position.y));
         mineFPos = minePos + (new Vector2(direction.x, -direction.y));
@@ -93,6 +94,7 @@ public class Player : MonoBehaviour
         //update player int and float position
         intPos = new Vector2Int((int)(transform.position.x + .5f), (int)(transform.position.y + .5f) * -1);
         fPos = new Vector2(transform.position.x, -transform.position.y);
+        depth = intPos.y;
 
         mineMarker.position = new Vector3(minePos.x, minePos.y * -1, 0) + (Vector3)direction;
 
@@ -124,7 +126,7 @@ public class Player : MonoBehaviour
         mineScale = 1;
         if (Upgrades.isLevelFuelTank
             && lookDirection != Vector2.zero
-            && Mathf.Acos(Mathf.Abs(Vector2.Dot(lookDirection, Vector2.right))) < 30f)
+            && Mathf.Acos(Mathf.Abs(Vector2.Dot(lookDirection, Vector2.right))) < 20f)
             mineScale *= 1.5f; //150% speed when level
         if (Upgrades.isStraightShooter
             && lookDirection != Vector2.zero
