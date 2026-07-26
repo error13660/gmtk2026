@@ -22,9 +22,13 @@ public class Player : MonoBehaviour
     [SerializeField] private AudioSource drillAudioSource;
     [SerializeField] private AudioSource musicAudioSource;
     private float musicVolume;
-    private float audioEase = 0;
+    public float audioEase = 0;
     private bool isControlLockout = false;
+    private float gearboxSpeed = 1;
+    private float actualSpeed = 0f;
+    private float actualSpeedTally = 0f;
     [SerializeField] private GameObject augmentAquiredDisplay;
+    [SerializeField] private Transform model;
 
     public float timeRemaining = 60f;
 
@@ -37,6 +41,18 @@ public class Player : MonoBehaviour
     }
 
     private void Start()
+    {
+        StartCoroutine(SetGearboxSpeed());
+
+        Upgrades.ShowAugmentInfoDisplay += OnAugmentInfoDisplay;
+    }
+
+    private void OnDestroy()
+    {
+        Upgrades.ShowAugmentInfoDisplay -= OnAugmentInfoDisplay;
+    }
+
+    private void OnAugmentInfoDisplay()
     {
         augmentAquiredDisplay.SetActive(true);
     }
@@ -66,7 +82,8 @@ public class Player : MonoBehaviour
 
             SetMineScale();
             newPos = transform.position;
-            CollideAndSlide(direction * moveSpeed * Time.deltaTime * mineScale, 4);
+            CollideAndSlide(direction * moveSpeed * Time.deltaTime * mineScale * gearboxSpeed, 4);
+            actualSpeedTally += Vector3.Distance(transform.position, newPos);
             transform.position = newPos;
         }
         Vector2 minePos = new Vector2(transform.position.x, -(transform.position.y));
@@ -99,6 +116,7 @@ public class Player : MonoBehaviour
                 return;
             }
         }
+        if (lookDirection != Vector2.zero) model.transform.up = lookDirection;
     }
 
     private void SetMineScale()
@@ -114,6 +132,17 @@ public class Player : MonoBehaviour
             mineScale *= 1.5f; //150% speed when going straight down
         if (Upgrades.isAquiredGrit)
             mineScale *= (1 + (2.5f * ((float)Upgrades.Instance.siltCounter / 25f)));
+    }
+
+    private IEnumerator SetGearboxSpeed()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(2f);
+            actualSpeed = actualSpeedTally / 2f;
+
+            gearboxSpeed = Mathf.Lerp(1, 1.5f, actualSpeed / (moveSpeed * 1.7f));
+        }
     }
 
     private void EaseAudio()

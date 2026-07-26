@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -55,6 +56,7 @@ public class Upgrades : MonoBehaviour
     private float quartzMinedTIme = 0;
     public float siltCounter = 0;
 
+    public static Action ShowAugmentInfoDisplay = () => { };
 
     public static Upgrades Instance { get; private set; }
     private void Awake()
@@ -63,29 +65,37 @@ public class Upgrades : MonoBehaviour
 
         if (unlockAquiredGritLimit == 0)
         {
-            unlockLevelFuelTankLimit = Random.Range(30, 50); //dust
-            unlockStraightShooterLimit = Random.Range(40, 60); //stone
-            unlockVeinCrackerLimit = Random.Range(10, 20); //basalt
-            unlockDecisiveHitLimit = Random.Range(10, 20); //quartz
-            unlockAquiredGritLimit = Random.Range(50, 70); //silt
-            unlockGearboxOverdriveLimit = Random.Range(30, 50); //clay
-            unlockExtraAugmentSlotLimit = Random.Range(30, 50); //granite
+            unlockLevelFuelTankLimit = UnityEngine.Random.Range(30, 50); //dust
+            unlockStraightShooterLimit = UnityEngine.Random.Range(40, 60); //stone
+            unlockVeinCrackerLimit = UnityEngine.Random.Range(10, 20); //basalt
+            unlockDecisiveHitLimit = UnityEngine.Random.Range(10, 20); //quartz
+            unlockAquiredGritLimit = UnityEngine.Random.Range(50, 70); //silt
+            unlockGearboxOverdriveLimit = UnityEngine.Random.Range(30, 50); //clay
+            unlockExtraAugmentSlotLimit = UnityEngine.Random.Range(30, 50); //granite
         }
+
+        freeAugmentSlots = 3;
     }
 
     public void OnDustMined()
     {
-        minedDustTiles++;
+        if (minedDustTiles == unlockLevelFuelTankLimit - 1) ShowAugmentInfoDisplay.Invoke();
+
+            minedDustTiles++;
         OnAnyMinedNotSilt();
     }
 
     public void OnStoneMined()
     {
+        if (minedDustTiles == unlockStraightShooterLimit - 1) ShowAugmentInfoDisplay.Invoke();
+
         minedStoneTiles++;
         OnAnyMinedNotSilt();
     }
     public void OnSiltMined()
     {
+        if (minedDustTiles == unlockAquiredGritLimit - 1) ShowAugmentInfoDisplay.Invoke();
+
         minedSiltTiles++;
         if (isAquiredGrit)
         {
@@ -96,6 +106,8 @@ public class Upgrades : MonoBehaviour
     }
     public void OnQuartzMined(Vector2Int pos)
     {
+        if (minedDustTiles == unlockDecisiveHitLimit - 1) ShowAugmentInfoDisplay.Invoke();
+
         minedQuartzTiles++;
         if (isDecisiveHit)
         {
@@ -114,6 +126,8 @@ public class Upgrades : MonoBehaviour
 
     public void OnBasaltMined(Vector2Int pos)
     {
+        if (minedDustTiles == unlockVeinCrackerLimit - 1) ShowAugmentInfoDisplay.Invoke();
+
         minedBasaltTiles++;
         if (isVeinCracker)
         {
@@ -125,12 +139,16 @@ public class Upgrades : MonoBehaviour
 
     public void OnGraniteMined()
     {
+        if (minedDustTiles == unlockExtraAugmentSlotLimit - 1) ShowAugmentInfoDisplay.Invoke();
+
         minedGraniteTiles++;
         OnAnyMinedNotSilt();
     }
 
     public void OnClayMined()
     {
+        if (minedDustTiles == unlockGearboxOverdriveLimit - 1) ShowAugmentInfoDisplay.Invoke();
+
         minedClayTiles++;
         OnAnyMinedNotSilt();
     }

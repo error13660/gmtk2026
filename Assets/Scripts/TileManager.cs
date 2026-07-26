@@ -58,6 +58,7 @@ public class TileManager : MonoBehaviour
 
                 //tid 0
                 if (height < 30) SetTileId(pos, 0);
+                else if (height > 100 && NoisePatterns.Instance.Pattern1(pos) > .5f) SetTileId(pos, 6);
                 else SetTileId(pos, 1);
             }
         }
@@ -93,14 +94,94 @@ public class TileManager : MonoBehaviour
                 }
             }
         }
+
+        //place clay veins
+        {
+            Vector2Int OffsetFunc(Vector2Int pos)
+            {
+                pos += new Vector2Int(UnityEngine.Random.Range(-15, 15), UnityEngine.Random.Range(10, 25));
+                pos = new Vector2Int(Mathf.Clamp(pos.x, 0, mapWith - 1), Mathf.Clamp(pos.y, 0, mapHeight - 1));
+                return pos;
+            }
+
+            float ValueFunc(Vector2 spDir, int nNeighbors, float spDist)
+            {
+                return (1 / spDist) + UnityEngine.Random.Range(0, 3);
+            }
+
+            Vector2Int[] spawnPoints = GetVeinBasePoints(7);
+            for (int i = 0; i < 20; i++)
+            {
+                spawnPoints = GetNextVeinSpawnPoints(spawnPoints, OffsetFunc);
+                for (int j = 0; j < spawnPoints.Length; j++)
+                {
+                    GenerateVein(spawnPoints[j], 20, 5, ValueFunc);
+                }
+            }
+        }
+
+        //place quartz veins
+        {
+            Vector2Int OffsetFunc(Vector2Int pos)
+            {
+                pos += new Vector2Int(UnityEngine.Random.Range(-20, 20), UnityEngine.Random.Range(20, 25));
+                pos = new Vector2Int(Mathf.Clamp(pos.x, 0, mapWith - 1), Mathf.Clamp(pos.y, 0, mapHeight - 1));
+                return pos;
+            }
+
+            float ValueFunc(Vector2 spDir, int nNeighbors, float spDist)
+            {
+                float f = 0;
+                if (Vector2.Angle(spDir, Vector2.down) < 10) f = 1;
+                f += UnityEngine.Random.Range(0, 5);
+                return f;
+            }
+
+            Vector2Int[] spawnPoints = GetVeinBasePoints(5);
+            for (int i = 0; i < 20; i++)
+            {
+                spawnPoints = GetNextVeinSpawnPoints(spawnPoints, OffsetFunc);
+                for (int j = 0; j < spawnPoints.Length; j++)
+                {
+                    GenerateVein(spawnPoints[j], 100, 3, ValueFunc);
+                }
+            }
+        }
+
+        //place basalt veins
+        {
+            Vector2Int OffsetFunc(Vector2Int pos)
+            {
+                pos += new Vector2Int(UnityEngine.Random.Range(-20, 20), UnityEngine.Random.Range(20, 25));
+                pos = new Vector2Int(Mathf.Clamp(pos.x, 0, mapWith - 1), Mathf.Clamp(pos.y, 0, mapHeight - 1));
+                return pos;
+            }
+
+            float ValueFunc(Vector2 spDir, int nNeighbors, float spDist)
+            {
+                float f = 0;
+                if (nNeighbors <= 2) f = 2;
+                f *= spDist;
+                f += UnityEngine.Random.Range(0, 3);
+                return f;
+            }
+
+            Vector2Int[] spawnPoints = AddTo(GetVeinBasePoints(5), new Vector2Int(0, 20));
+            for (int i = 0; i < 20; i++)
+            {
+                spawnPoints = GetNextVeinSpawnPoints(spawnPoints, OffsetFunc);
+                for (int j = 0; j < spawnPoints.Length; j++)
+                {
+                    GenerateVein(spawnPoints[j], 100, 4, ValueFunc);
+                }
+            }
+        }
+
+
     }
 
     void Start()
     {
-        for (int i = 0; i < mapWith; i++)
-        {
-            MineTile(new Vector2Int(i, i));
-        }
     }
 
     void Update()
@@ -329,6 +410,15 @@ public class TileManager : MonoBehaviour
 
         AddValidTiles(new Vector2Int[] { startPos });
         return workingTiles.ToArray();
+    }
+
+    private Vector2Int[] AddTo(Vector2Int[] points, Vector2Int v2i)
+    {
+        for (int i = 0; i < points.Length; i++)
+        {
+            points[i] += v2i;
+        }
+        return points;
     }
 
     #endregion

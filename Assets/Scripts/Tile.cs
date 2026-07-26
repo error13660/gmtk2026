@@ -47,7 +47,7 @@ public class Tile : MonoBehaviour
 
         switch (tileId)
         {
-            case 0:
+            case 0: //dust
                 {
                     //The player is mining. Is it mining this tile?
                     bool isInRange = (IsInRange(Player.mineFPos, .99f));
@@ -60,7 +60,7 @@ public class Tile : MonoBehaviour
                     }
                     return;
                 }
-            case 1:
+            case 1: //stone
                 {
                     //The player is mining. Is it mining this tile?
                     bool isInRange = (IsInRange(Player.mineFPos, .99f));
@@ -74,7 +74,7 @@ public class Tile : MonoBehaviour
                     return;
                 }
 
-            case 2:
+            case 2: //silt
                 {
                     //The player is mining. Is it mining this tile?
                     bool isInRange = (IsInRange(Player.mineFPos, .99f));
@@ -87,12 +87,12 @@ public class Tile : MonoBehaviour
                     }
                     return;
                 }
-            case 3:
+            case 3: //quartz
                 {
                     //The player is mining. Is it mining this tile?
                     bool isInRange = (IsInRange(Player.mineFPos, .99f));
                     if (isInRange) mineTime += Time.deltaTime * Player.mineScale;
-                    if (mineTime > .25f)
+                    if (mineTime > 5f)
                     {
                         TileManager.instance.MineTile(pos);
                         TileManager.instance.DespawnTile(pos, this);
@@ -100,12 +100,14 @@ public class Tile : MonoBehaviour
                     }
                     return;
                 }
-            case 4:
+            case 4: //basalt
                 {
                     //The player is mining. Is it mining this tile?
                     bool isInRange = (IsInRange(Player.mineFPos, .99f));
                     if (isInRange) mineTime += Time.deltaTime * Player.mineScale;
-                    if (mineTime > .25f)
+                    float f = 3f;
+                    if (Upgrades.isVeinCracker) f = .25f;
+                    if (mineTime > f)
                     {
                         TileManager.instance.MineTile(pos);
                         TileManager.instance.DespawnTile(pos, this);
@@ -113,12 +115,12 @@ public class Tile : MonoBehaviour
                     }
                     return;
                 }
-            case 5:
+            case 5: //clay
                 {
                     //The player is mining. Is it mining this tile?
                     bool isInRange = (IsInRange(Player.mineFPos, .99f));
                     if (isInRange) mineTime += Time.deltaTime * Player.mineScale;
-                    if (mineTime > .25f)
+                    if (mineTime > .75f)
                     {
                         TileManager.instance.MineTile(pos);
                         TileManager.instance.DespawnTile(pos, this);
@@ -126,12 +128,12 @@ public class Tile : MonoBehaviour
                     }
                     return;
                 }
-            case 6:
+            case 6: //granite
                 {
                     //The player is mining. Is it mining this tile?
                     bool isInRange = (IsInRange(Player.mineFPos, .99f));
                     if (isInRange) mineTime += Time.deltaTime * Player.mineScale;
-                    if (mineTime > .25f)
+                    if (mineTime > 4)
                     {
                         TileManager.instance.MineTile(pos);
                         TileManager.instance.DespawnTile(pos, this);
