@@ -33,6 +33,10 @@ public class Player : MonoBehaviour
     public float timeRemaining = 60f;
     public int depth = 0;
 
+    private ILeaderboardApiService leaderboardApiService;
+    private string apiUrl =
+        "https://dzsepetto.hu/gmtk_api/gmtk_api.php";
+
     private void Awake()
     {
         Instance = this;
@@ -173,6 +177,11 @@ public class Player : MonoBehaviour
         IEnumerator ExitScene()
         {
             float startTime = Time.time;
+
+            leaderboardApiService =
+            new LeaderboardApiService(apiUrl);
+            leaderboardApiService.SavePlayer(depth);
+
             while (Time.time - startTime < 5f)
             {
                 float t = 1 - ((Time.time - startTime) / 5f);
