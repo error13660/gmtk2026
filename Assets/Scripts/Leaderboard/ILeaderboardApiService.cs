@@ -15,7 +15,6 @@ public interface ILeaderboardApiService
     );
 
     IEnumerator SavePlayer(
-        string playerName,
         int depth,
         Action<LeaderboardEntryResponse> onSuccess,
         Action<string> onError

@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
-// Leaderboard Function models
+// Leaderboard function models
 
 [Serializable]
 public class LeaderboardPlayerData
@@ -18,12 +17,13 @@ public class LeaderboardData
 }
 
 
-// API MODELS 
+// API models
 
 [Serializable]
 public class LeaderboardEntry
 {
     public int id;
+    public long user_id;
     public string player_name;
     public int depth;
     public string updated_at;
@@ -32,22 +32,20 @@ public class LeaderboardEntry
 [Serializable]
 public class LeaderboardEntryRequest
 {
+    public long user_id;
     public string player_name;
     public int depth;
 
-    public LeaderboardEntryRequest(string playerName, int depth)
+    public LeaderboardEntryRequest(
+        long userId,
+        string playerName,
+        int depth
+    )
     {
+        user_id = userId;
         player_name = playerName;
         this.depth = depth;
     }
-}
-
-[Serializable]
-public class LeaderboardEntryResponse
-{
-    public bool success;
-    public string message;
-    public LeaderboardEntry data;
 }
 
 [Serializable]
@@ -58,3 +56,10 @@ public class LeaderboardListResponse
     public LeaderboardEntry[] data;
 }
 
+[Serializable]
+public class LeaderboardEntryResponse
+{
+    public bool success;
+    public string message;
+    public LeaderboardEntry data;
+}

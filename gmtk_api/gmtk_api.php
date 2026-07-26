@@ -39,7 +39,7 @@ try {
         false,
         $exception->getMessage()
     );
-} catch (Exception $exception) {
+} catch (Throwable $exception) {
     sendJson(
         500,
         false,
@@ -111,6 +111,11 @@ function handlePut(PDO $pdo): void
         );
     }
 
+    $userId = filter_var(
+        $data['user_id'] ?? null,
+        FILTER_VALIDATE_INT
+    );
+
     $playerName = isset($data['player_name'])
         ? trim((string) $data['player_name'])
         : '';
@@ -120,11 +125,27 @@ function handlePut(PDO $pdo): void
         FILTER_VALIDATE_INT
     );
 
+    if ($userId === false || $userId <= 0) {
+        sendJson(
+            400,
+            false,
+            'A user_id mezőnek pozitív egész számnak kell lennie.'
+        );
+    }
+
     if ($playerName === '') {
         sendJson(
             400,
             false,
             'A player_name mező kötelező.'
+        );
+    }
+
+    if (mb_strlen($playerName) > 255) {
+        sendJson(
+            400,
+            false,
+            'A player_name túl hosszú.'
         );
     }
 
@@ -136,34 +157,67 @@ function handlePut(PDO $pdo): void
         );
     }
 
+    /*
+     * A user_id oszlop UNIQUE.
+     *
+     * Új user_id esetén létrehoz egy rekordot.
+     * Meglévő user_id esetén frissíti a nevet, de a depth
+     * csak akkor változik, ha az új érték nagyobb.
+     */
     $statement = $pdo->prepare(
-        'insert into leaderboard (player_name, depth)
-         values (:player_name, :depth)
+        'insert into leaderboard (
+            user_id,
+            player_name,
+            depth
+         )
+         values (
+            :user_id,
+            :player_name,
+            :depth
+         )
          on duplicate key update
-             depth = values(depth)'
+            player_name = values(player_name),
+            depth = greatest(depth, values(depth))'
     );
 
     $statement->execute([
+        'user_id' => $userId,
         'player_name' => $playerName,
         'depth' => $depth
     ]);
 
+    /*
+     * A mentett rekordot már user_id alapján kérjük vissza.
+     */
     $selectStatement = $pdo->prepare(
-        'select id, player_name, depth, updated_at
+        'select
+            id,
+            user_id,
+            player_name,
+            depth,
+            updated_at
          from leaderboard
-         where player_name = :player_name'
+         where user_id = :user_id'
     );
 
     $selectStatement->execute([
-        'player_name' => $playerName
+        'user_id' => $userId
     ]);
 
     $player = $selectStatement->fetch();
 
+    if (!$player) {
+        sendJson(
+            500,
+            false,
+            'A mentett játékost nem sikerült visszaolvasni.'
+        );
+    }
+
     sendJson(
         200,
         true,
-        'A játékos adatai sikeresen mentve.',
+        'A játékos legjobb eredménye sikeresen mentve.',
         $player
     );
 }
@@ -188,6 +242,7 @@ function sendJson(
     echo json_encode(
         $response,
         JSON_UNESCAPED_UNICODE |
+        JSON_UNESCAPED_SLASHES |
         JSON_PRETTY_PRINT
     );
 

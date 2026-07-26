@@ -147,15 +147,42 @@ public class LeaderboardApiService : ILeaderboardApiService
     }
 
     public IEnumerator SavePlayer(
-        string playerName,
-        int depth,
-        Action<LeaderboardEntryResponse> onSuccess,
-        Action<string> onError
-    )
+     int depth,
+     Action<LeaderboardEntryResponse> onSuccess,
+     Action<string> onError
+ )
     {
+        if (UserData.Instance == null)
+        {
+            onError?.Invoke(
+                "A UserData singleton nem található."
+            );
+
+            yield break;
+        }
+
+        if (!UserData.Instance.IsLoggedIn)
+        {
+            onError?.Invoke(
+                "A játékos nincs bejelentkezve."
+            );
+
+            yield break;
+        }
+
+        if (depth < 0)
+        {
+            onError?.Invoke(
+                "A depth nem lehet negatív."
+            );
+
+            yield break;
+        }
+
         LeaderboardEntryRequest payload =
             new LeaderboardEntryRequest(
-                playerName,
+                UserData.Instance.UserId,
+                UserData.Instance.UserName,
                 depth
             );
 
@@ -165,72 +192,74 @@ public class LeaderboardApiService : ILeaderboardApiService
         byte[] body =
             Encoding.UTF8.GetBytes(json);
 
-        using (UnityWebRequest request =
-               new UnityWebRequest(apiUrl, "PUT"))
+        using UnityWebRequest request =
+            new UnityWebRequest(
+                apiUrl,
+                UnityWebRequest.kHttpVerbPUT
+            );
+
+        request.uploadHandler =
+            new UploadHandlerRaw(body);
+
+        request.downloadHandler =
+            new DownloadHandlerBuffer();
+
+        request.SetRequestHeader(
+            "Content-Type",
+            "application/json"
+        );
+
+        request.SetRequestHeader(
+            "Accept",
+            "application/json"
+        );
+
+        yield return request.SendWebRequest();
+
+        if (!IsSuccessful(request))
         {
-            request.uploadHandler =
-                new UploadHandlerRaw(body);
-
-            request.downloadHandler =
-                new DownloadHandlerBuffer();
-
-            request.SetRequestHeader(
-                "Content-Type",
-                "application/json"
+            onError?.Invoke(
+                CreateErrorMessage(request)
             );
 
-            request.SetRequestHeader(
-                "Accept",
-                "application/json"
-            );
-
-            yield return request.SendWebRequest();
-
-            if (!IsSuccessful(request))
-            {
-                onError?.Invoke(
-                    CreateErrorMessage(request)
-                );
-
-                yield break;
-            }
-
-            LeaderboardEntryResponse response;
-
-            try
-            {
-                response =
-                    JsonUtility.FromJson<LeaderboardEntryResponse>(
-                        request.downloadHandler.text
-                    );
-            }
-            catch (Exception exception)
-            {
-                onError?.Invoke(
-                    "Nem sikerült feldolgozni a szerver válaszát: " +
-                    exception.Message
-                );
-
-                yield break;
-            }
-
-            if (response == null)
-            {
-                onError?.Invoke(
-                    "A szerver üres vagy hibás választ adott."
-                );
-
-                yield break;
-            }
-
-            if (!response.success)
-            {
-                onError?.Invoke(response.message);
-                yield break;
-            }
-
-            onSuccess?.Invoke(response);
+            yield break;
         }
+
+        LeaderboardEntryResponse response;
+
+        try
+        {
+            response =
+                JsonUtility.FromJson<LeaderboardEntryResponse>(
+                    request.downloadHandler.text
+                );
+        }
+        catch (Exception exception)
+        {
+            onError?.Invoke(
+                "Nem sikerült feldolgozni a szerver válaszát: " +
+                exception.Message
+            );
+
+            yield break;
+        }
+
+        if (response == null)
+        {
+            onError?.Invoke(
+                "A szerver üres vagy hibás választ adott."
+            );
+
+            yield break;
+        }
+
+        if (!response.success)
+        {
+            onError?.Invoke(response.message);
+            yield break;
+        }
+
+        onSuccess?.Invoke(response);
     }
 
     private static bool IsSuccessful(
