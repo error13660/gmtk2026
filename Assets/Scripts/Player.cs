@@ -112,6 +112,8 @@ public class Player : MonoBehaviour
             && lookDirection != Vector2.zero
             && Mathf.Acos(Vector2.Dot(lookDirection, Vector2.down)) < 15f)
             mineScale *= 1.5f; //150% speed when going straight down
+        if (Upgrades.isAquiredGrit)
+            mineScale *= (1 + (2.5f * ((float)Upgrades.Instance.siltCounter / 25f)));
     }
 
     private void EaseAudio()

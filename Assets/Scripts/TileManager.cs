@@ -72,7 +72,7 @@ public class TileManager : MonoBehaviour
         {
             Vector2Int OffsetFunc(Vector2Int pos)
             {
-                pos += new Vector2Int(UnityEngine.Random.Range(-10, 10), UnityEngine.Random.Range(7, 20));
+                pos += new Vector2Int(UnityEngine.Random.Range(-15, 15), UnityEngine.Random.Range(7, 20) * Mathf.Max(pos.y / 30, 1));
                 pos = new Vector2Int(Mathf.Clamp(pos.x, 0, mapWith - 1), Mathf.Clamp(pos.y, 0, mapHeight - 1));
                 return pos;
             }
@@ -84,7 +84,7 @@ public class TileManager : MonoBehaviour
             }
 
             Vector2Int[] spawnPoints = GetVeinBasePoints(4);
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 20; i++)
             {
                 spawnPoints = GetNextVeinSpawnPoints(spawnPoints, OffsetFunc);
                 for (int j = 0; j < spawnPoints.Length; j++)
@@ -229,10 +229,9 @@ public class TileManager : MonoBehaviour
         SetTileId(spawnPoint, tileId);
         AddValidTiles(NeighboringTiles(spawnPoint));
 
-        if (workingTiles.Count == 0) return;
-
         for (int i = 0; i < iterations; i++)
         {
+            if (workingTiles.Count == 0) return;
             Vector2Int bestPos = workingTiles[0];
             int bestI = 0;
             float bestValue = valueFunc.Invoke(
@@ -310,7 +309,7 @@ public class TileManager : MonoBehaviour
     /// <summary>
     /// Returns all connected tiles of one type
     /// </summary>
-    public Vector2Int[] GetClumpedTiles(Vector2Int startPos,int tileId)
+    public Vector2Int[] GetClumpedTiles(Vector2Int startPos, int tileId)
     {
         List<Vector2Int> workingTiles = new List<Vector2Int>();
         void AddValidTiles(Vector2Int[] tiles)

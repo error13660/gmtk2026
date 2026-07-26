@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Upgrades : MonoBehaviour
@@ -52,6 +53,7 @@ public class Upgrades : MonoBehaviour
     //data for specific augment functions --
     private int quartzMinedRecently = 0;
     private float quartzMinedTIme = 0;
+    public float siltCounter = 0;
 
 
     public static Upgrades Instance { get; private set; }
@@ -74,11 +76,13 @@ public class Upgrades : MonoBehaviour
     public void OnDustMined()
     {
         minedDustTiles++;
+        OnAnyMinedNotSilt();
     }
 
     public void OnStoneMined()
     {
         minedStoneTiles++;
+        OnAnyMinedNotSilt();
     }
     public void OnSiltMined()
     {
@@ -86,6 +90,8 @@ public class Upgrades : MonoBehaviour
         if (isAquiredGrit)
         {
             //apply aquired grit augmant actions
+            siltCounter += 1f;
+            siltCounter = Mathf.Min(siltCounter, 30);
         }
     }
     public void OnQuartzMined(Vector2Int pos)
@@ -103,6 +109,7 @@ public class Upgrades : MonoBehaviour
                 quartzMinedRecently = 0;
             }
         }
+        OnAnyMinedNotSilt();
     }
 
     public void OnBasaltMined(Vector2Int pos)
@@ -113,16 +120,25 @@ public class Upgrades : MonoBehaviour
             //apply vein cracker augment actions
             TileManager.instance.MineTiles(TileManager.instance.NeighboringTiles(pos));
         }
+        OnAnyMinedNotSilt();
     }
 
     public void OnGraniteMined()
     {
         minedGraniteTiles++;
+        OnAnyMinedNotSilt();
     }
 
     public void OnClayMined()
     {
         minedClayTiles++;
+        OnAnyMinedNotSilt();
+    }
+
+    private void OnAnyMinedNotSilt()
+    {
+        siltCounter -= .5f;
+        siltCounter = Mathf.Max(siltCounter, 0);
     }
 
     public void DisableAllAugments()
