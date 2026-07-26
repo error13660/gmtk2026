@@ -180,8 +180,16 @@ public class Player : MonoBehaviour
 
             leaderboardApiService =
             new LeaderboardApiService(apiUrl);
-            //leaderboardApiService.SavePlayer(depth);
-
+            if (UserData.Instance.UserId != 0)
+            {
+                StartCoroutine(
+                leaderboardApiService.SavePlayer(
+                depth,
+                (os) => { },
+                (oe) => { }
+                )
+                );
+            }
             while (Time.time - startTime < 5f)
             {
                 float t = 1 - ((Time.time - startTime) / 5f);
@@ -189,6 +197,7 @@ public class Player : MonoBehaviour
                 yield return null;
             }
             SceneManager.LoadSceneAsync(0);
+
         }
     }
 }
