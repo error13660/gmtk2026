@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 
-// Leaderboard function models
-
 [Serializable]
 public class LeaderboardPlayerData
 {
@@ -16,14 +14,11 @@ public class LeaderboardData
     public List<LeaderboardPlayerData> players;
 }
 
-
-// API models
-
 [Serializable]
 public class LeaderboardEntry
 {
     public int id;
-    public long user_id;
+    public long player_id;
     public string player_name;
     public int depth;
     public string updated_at;
@@ -32,17 +27,17 @@ public class LeaderboardEntry
 [Serializable]
 public class LeaderboardEntryRequest
 {
-    public long user_id;
+    public long player_id;
     public string player_name;
     public int depth;
 
     public LeaderboardEntryRequest(
-        long userId,
+        long playerId,
         string playerName,
         int depth
     )
     {
-        user_id = userId;
+        player_id = playerId;
         player_name = playerName;
         this.depth = depth;
     }

@@ -111,8 +111,8 @@ function handlePut(PDO $pdo): void
         );
     }
 
-    $userId = filter_var(
-        $data['user_id'] ?? null,
+    $playerId = filter_var(
+        $data['player_id'] ?? null,
         FILTER_VALIDATE_INT
     );
 
@@ -125,11 +125,11 @@ function handlePut(PDO $pdo): void
         FILTER_VALIDATE_INT
     );
 
-    if ($userId === false || $userId <= 0) {
+    if ($playerId === false || $playerId <= 0) {
         sendJson(
             400,
             false,
-            'A user_id mezőnek pozitív egész számnak kell lennie.'
+            'A player_id mezőnek pozitív egész számnak kell lennie.'
         );
     }
 
@@ -158,20 +158,21 @@ function handlePut(PDO $pdo): void
     }
 
     /*
-     * A user_id oszlop UNIQUE.
+     * A player_id oszlop UNIQUE.
      *
-     * Új user_id esetén létrehoz egy rekordot.
-     * Meglévő user_id esetén frissíti a nevet, de a depth
-     * csak akkor változik, ha az új érték nagyobb.
+     * Új player_id esetén létrehoz egy rekordot.
+     * Meglévő player_id esetén frissíti a nevet,
+     * de a depth csak akkor változik,
+     * ha az új érték nagyobb.
      */
     $statement = $pdo->prepare(
         'insert into leaderboard (
-            user_id,
+            player_id,
             player_name,
             depth
          )
          values (
-            :user_id,
+            :player_id,
             :player_name,
             :depth
          )
@@ -181,27 +182,27 @@ function handlePut(PDO $pdo): void
     );
 
     $statement->execute([
-        'user_id' => $userId,
+        'player_id' => $playerId,
         'player_name' => $playerName,
         'depth' => $depth
     ]);
 
     /*
-     * A mentett rekordot már user_id alapján kérjük vissza.
+     * A mentett rekordot player_id alapján kérjük vissza.
      */
     $selectStatement = $pdo->prepare(
         'select
             id,
-            user_id,
+            player_id,
             player_name,
             depth,
             updated_at
          from leaderboard
-         where user_id = :user_id'
+         where player_id = :player_id'
     );
 
     $selectStatement->execute([
-        'user_id' => $userId
+        'player_id' => $playerId
     ]);
 
     $player = $selectStatement->fetch();

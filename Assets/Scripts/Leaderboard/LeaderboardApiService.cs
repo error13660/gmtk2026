@@ -370,7 +370,7 @@ public class LeaderboardApiService : ILeaderboardApiService
             Debug.Log(
                 "[LeaderboardApiService] Mentett játékos:\n" +
                 $"Id: {response.data.id}\n" +
-                $"UserId: {response.data.user_id}\n" +
+                $"UserId: {response.data.player_id}\n" +
                 $"PlayerName: {response.data.player_name}\n" +
                 $"Depth: {response.data.depth}\n" +
                 $"UpdatedAt: {response.data.updated_at}"
