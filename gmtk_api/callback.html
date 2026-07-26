@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hu">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
 
@@ -8,32 +8,225 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>DrillTest itch.io login</title>
+    <title>DrillTest itch.io Login</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
         body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 60px auto;
-            padding: 20px;
+            width: 100%;
+            min-height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 100vh;
+            padding: 24px;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            color: #ffffff;
+            background: #000000;
+        }
+
+        .login-panel {
+            width: 100%;
+            max-width: 520px;
+
+            padding: 36px 32px;
+
+            border: 2px solid #ffffff;
+            border-radius: 2px;
+
+            background: #000000;
             text-align: center;
         }
 
-        #error {
-            color: #b00020;
+        .title {
+            margin: 0 0 16px;
+
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .divider {
+            width: 100%;
+            height: 2px;
+            margin-bottom: 28px;
+
+            background: #ffffff;
+        }
+
+        .status-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 24px;
+
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+
+            font-size: 38px;
+            font-weight: bold;
+        }
+
+        .status-text {
+            margin: 0;
+
+            font-size: 21px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .details {
+            margin: 14px 0 0;
+
+            color: #dddddd;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .error {
+            margin: 18px 0 0;
+
+            color: #ff6b6b;
+            font-family:
+                Consolas,
+                Monaco,
+                monospace;
+            font-size: 14px;
+            line-height: 1.5;
             white-space: pre-wrap;
+        }
+
+        .loading-spinner {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 24px;
+
+            border: 4px solid #444444;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+
+            animation: spin 0.8s linear infinite;
+        }
+
+        .success-icon {
+            display: none;
+        }
+
+        .error-icon {
+            display: none;
+
+            color: #ff6b6b;
+            border-color: #ff6b6b;
+        }
+
+        .return-note {
+            display: none;
+
+            margin: 24px 0 0;
+            padding-top: 18px;
+
+            border-top: 1px solid #555555;
+
+            color: #bbbbbb;
+            font-size: 14px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 560px) {
+            body {
+                padding: 14px;
+            }
+
+            .login-panel {
+                padding: 28px 20px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .status-text {
+                font-size: 19px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <h2 id="status">
-        itch.io bejelentkezés feldolgozása...
-    </h2>
+    <main class="login-panel">
+        <h1 class="title">
+            DrillTest
+        </h1>
 
-    <p id="details"></p>
+        <div class="divider"></div>
 
-    <pre id="error"></pre>
+        <div
+            id="loadingSpinner"
+            class="loading-spinner"
+        ></div>
+
+        <div
+            id="successIcon"
+            class="status-icon success-icon"
+        >
+            ✓
+        </div>
+
+        <div
+            id="errorIcon"
+            class="status-icon error-icon"
+        >
+            !
+        </div>
+
+        <h2
+            id="status"
+            class="status-text"
+        >
+            Processing itch.io login...
+        </h2>
+
+        <p
+            id="details"
+            class="details"
+        >
+            Please wait while we verify your account.
+        </p>
+
+        <pre
+            id="error"
+            class="error"
+        ></pre>
+
+        <p
+            id="returnNote"
+            class="return-note"
+        >
+            You may now return to the game.
+        </p>
+    </main>
 
     <script>
         async function completeLogin() {
@@ -45,6 +238,18 @@
 
             const errorElement =
                 document.getElementById("error");
+
+            const loadingSpinner =
+                document.getElementById("loadingSpinner");
+
+            const successIcon =
+                document.getElementById("successIcon");
+
+            const errorIcon =
+                document.getElementById("errorIcon");
+
+            const returnNote =
+                document.getElementById("returnNote");
 
             try {
                 const parameters = new URLSearchParams(
@@ -64,8 +269,8 @@
                     parameters.get("error_description");
 
                 /*
-                 * Eltávolítjuk az access tokent a böngésző
-                 * címsorából és előzményeiből.
+                 * Remove the access token from the browser URL
+                 * and history as soon as it has been read.
                  */
                 history.replaceState(
                     null,
@@ -78,19 +283,19 @@
                         oauthErrorDescription
                             ? oauthError + ": " +
                               oauthErrorDescription
-                            : "OAuth hiba: " + oauthError
+                            : "OAuth error: " + oauthError
                     );
                 }
 
                 if (!accessToken) {
                     throw new Error(
-                        "Nem érkezett itch.io access token."
+                        "No itch.io access token was received."
                     );
                 }
 
                 if (!state) {
                     throw new Error(
-                        "Nem érkezett OAuth state azonosító."
+                        "No OAuth state identifier was received."
                     );
                 }
 
@@ -121,7 +326,7 @@
                 }
                 catch {
                     throw new Error(
-                        "A PHP nem JSON választ adott:\n" +
+                        "The server did not return valid JSON:\n" +
                         responseText
                     );
                 }
@@ -129,33 +334,41 @@
                 if (!response.ok || !result.success) {
                     throw new Error(
                         result.message ||
-                        "A profil lekérése sikertelen."
+                        "Failed to retrieve the itch.io profile."
                     );
                 }
 
+                loadingSpinner.style.display = "none";
+                successIcon.style.display = "flex";
+
                 statusElement.textContent =
-                    "Sikeres itch.io bejelentkezés!";
+                    "Login successful!";
 
                 detailsElement.textContent =
-                    "Felhasználó: " +
+                    "Signed in as " +
                     result.data.username +
-                    ". Visszatérhetsz a játékhoz.";
+                    ".";
 
                 errorElement.textContent = "";
+                returnNote.style.display = "block";
 
                 /*
-                 * A Unity pollinggal fogja lekérni az eredményt,
-                 * ezért nem használunk window.opener.postMessage-et.
+                 * Unity retrieves the result through polling,
+                 * so window.opener and postMessage are not needed.
                  */
                 setTimeout(function () {
                     window.close();
-                }, 2000);
+                }, 2500);
             }
             catch (error) {
-                statusElement.textContent =
-                    "Sikertelen bejelentkezés.";
+                loadingSpinner.style.display = "none";
+                errorIcon.style.display = "flex";
 
-                detailsElement.textContent = "";
+                statusElement.textContent =
+                    "Login failed.";
+
+                detailsElement.textContent =
+                    "The itch.io account could not be verified.";
 
                 errorElement.textContent =
                     error instanceof Error
