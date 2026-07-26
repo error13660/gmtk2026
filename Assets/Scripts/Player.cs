@@ -173,31 +173,65 @@ public class Player : MonoBehaviour
             isControlLockout = true;
             StartCoroutine(ExitScene());
         }
+    }
 
-        IEnumerator ExitScene()
-        {
-            float startTime = Time.time;
-
-            leaderboardApiService =
+        private IEnumerator ExitScene()
+    {
+        leaderboardApiService =
             new LeaderboardApiService(apiUrl);
-            if (UserData.Instance.UserId != 0)
-            {
-                StartCoroutine(
-                leaderboardApiService.SavePlayer(
-                depth,
-                (os) => { },
-                (oe) => { }
-                )
-                );
-            }
-            while (Time.time - startTime < 5f)
-            {
-                float t = 1 - ((Time.time - startTime) / 5f);
-                musicAudioSource.volume = musicVolume * t;
-                yield return null;
-            }
-            SceneManager.LoadSceneAsync(0);
 
+        if (UserData.Instance != null &&
+            UserData.Instance.IsLoggedIn)
+        {
+            Debug.Log(
+                $"[ExitScene] Leaderboard mentés indul. Depth: {depth}"
+            );
+
+            yield return leaderboardApiService.SavePlayer(
+                depth,
+                response =>
+                {
+                    Debug.Log(
+                        "[ExitScene] Leaderboard mentés sikeres: " +
+                        response.message
+                    );
+                },
+                error =>
+                {
+                    Debug.LogError(
+                        "[ExitScene] Leaderboard mentési hiba: " +
+                        error
+                    );
+                }
+            );
         }
+        else
+        {
+            Debug.LogWarning(
+                "[ExitScene] Nincs bejelentkezett felhasználó, " +
+                "a leaderboard mentés kimarad."
+            );
+        }
+
+        float startTime = Time.unscaledTime;
+        float fadeDuration = 5f;
+
+        while (Time.unscaledTime - startTime < fadeDuration)
+        {
+            float elapsed =
+                Time.unscaledTime - startTime;
+
+            float t =
+                1f - elapsed / fadeDuration;
+
+            musicAudioSource.volume =
+                musicVolume * t;
+
+            yield return null;
+        }
+
+        musicAudioSource.volume = 0f;
+
+        yield return SceneManager.LoadSceneAsync(0);
     }
 }
