@@ -20,13 +20,19 @@ public class LeaderboardApiService : ILeaderboardApiService
     {
         using (UnityWebRequest request = UnityWebRequest.Get(apiUrl))
         {
-            request.SetRequestHeader("Accept", "application/json");
+            request.SetRequestHeader(
+                "Accept",
+                "application/json"
+            );
 
             yield return request.SendWebRequest();
 
             if (!IsSuccessful(request))
             {
-                onError?.Invoke(CreateErrorMessage(request));
+                onError?.Invoke(
+                    CreateErrorMessage(request)
+                );
+
                 yield break;
             }
 
@@ -34,9 +40,10 @@ public class LeaderboardApiService : ILeaderboardApiService
 
             try
             {
-                response = JsonUtility.FromJson<LeaderboardListResponse>(
-                    request.downloadHandler.text
-                );
+                response =
+                    JsonUtility.FromJson<LeaderboardListResponse>(
+                        request.downloadHandler.text
+                    );
             }
             catch (Exception exception)
             {
@@ -50,7 +57,10 @@ public class LeaderboardApiService : ILeaderboardApiService
 
             if (response == null)
             {
-                onError?.Invoke("A szerver üres vagy hibás választ adott.");
+                onError?.Invoke(
+                    "A szerver üres vagy hibás választ adott."
+                );
+
                 yield break;
             }
 
@@ -70,18 +80,30 @@ public class LeaderboardApiService : ILeaderboardApiService
         Action<string> onError
     )
     {
-        string encodedPlayerName = UnityWebRequest.EscapeURL(playerName);
-        string url = apiUrl + "?player_name=" + encodedPlayerName;
+        string encodedPlayerName =
+            UnityWebRequest.EscapeURL(playerName);
 
-        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        string url =
+            apiUrl +
+            "?player_name=" +
+            encodedPlayerName;
+
+        using (UnityWebRequest request =
+               UnityWebRequest.Get(url))
         {
-            request.SetRequestHeader("Accept", "application/json");
+            request.SetRequestHeader(
+                "Accept",
+                "application/json"
+            );
 
             yield return request.SendWebRequest();
 
             if (!IsSuccessful(request))
             {
-                onError?.Invoke(CreateErrorMessage(request));
+                onError?.Invoke(
+                    CreateErrorMessage(request)
+                );
+
                 yield break;
             }
 
@@ -89,9 +111,10 @@ public class LeaderboardApiService : ILeaderboardApiService
 
             try
             {
-                response = JsonUtility.FromJson<LeaderboardEntryResponse>(
-                    request.downloadHandler.text
-                );
+                response =
+                    JsonUtility.FromJson<LeaderboardEntryResponse>(
+                        request.downloadHandler.text
+                    );
             }
             catch (Exception exception)
             {
@@ -105,7 +128,10 @@ public class LeaderboardApiService : ILeaderboardApiService
 
             if (response == null)
             {
-                onError?.Invoke("A szerver üres vagy hibás választ adott.");
+                onError?.Invoke(
+                    "A szerver üres vagy hibás választ adott."
+                );
+
                 yield break;
             }
 
@@ -121,25 +147,31 @@ public class LeaderboardApiService : ILeaderboardApiService
 
     public IEnumerator SavePlayer(
         string playerName,
-        int score,
         int depth,
         Action<LeaderboardEntryResponse> onSuccess,
         Action<string> onError
     )
     {
-        LeaderboardEntryRequest payload = new LeaderboardEntryRequest(
-            playerName,
-            score,
-            depth
-        );
+        LeaderboardEntryRequest payload =
+            new LeaderboardEntryRequest(
+                playerName,
+                depth
+            );
 
-        string json = JsonUtility.ToJson(payload);
-        byte[] body = Encoding.UTF8.GetBytes(json);
+        string json =
+            JsonUtility.ToJson(payload);
 
-        using (UnityWebRequest request = new UnityWebRequest(apiUrl, "PUT"))
+        byte[] body =
+            Encoding.UTF8.GetBytes(json);
+
+        using (UnityWebRequest request =
+               new UnityWebRequest(apiUrl, "PUT"))
         {
-            request.uploadHandler = new UploadHandlerRaw(body);
-            request.downloadHandler = new DownloadHandlerBuffer();
+            request.uploadHandler =
+                new UploadHandlerRaw(body);
+
+            request.downloadHandler =
+                new DownloadHandlerBuffer();
 
             request.SetRequestHeader(
                 "Content-Type",
@@ -155,7 +187,10 @@ public class LeaderboardApiService : ILeaderboardApiService
 
             if (!IsSuccessful(request))
             {
-                onError?.Invoke(CreateErrorMessage(request));
+                onError?.Invoke(
+                    CreateErrorMessage(request)
+                );
+
                 yield break;
             }
 
@@ -163,9 +198,10 @@ public class LeaderboardApiService : ILeaderboardApiService
 
             try
             {
-                response = JsonUtility.FromJson<LeaderboardEntryResponse>(
-                    request.downloadHandler.text
-                );
+                response =
+                    JsonUtility.FromJson<LeaderboardEntryResponse>(
+                        request.downloadHandler.text
+                    );
             }
             catch (Exception exception)
             {
@@ -179,7 +215,10 @@ public class LeaderboardApiService : ILeaderboardApiService
 
             if (response == null)
             {
-                onError?.Invoke("A szerver üres vagy hibás választ adott.");
+                onError?.Invoke(
+                    "A szerver üres vagy hibás választ adott."
+                );
+
                 yield break;
             }
 
@@ -193,20 +232,27 @@ public class LeaderboardApiService : ILeaderboardApiService
         }
     }
 
-    private static bool IsSuccessful(UnityWebRequest request)
+    private static bool IsSuccessful(
+        UnityWebRequest request
+    )
     {
 #if UNITY_2020_1_OR_NEWER
-        return request.result == UnityWebRequest.Result.Success;
+        return request.result ==
+               UnityWebRequest.Result.Success;
 #else
-        return !request.isNetworkError && !request.isHttpError;
+        return !request.isNetworkError &&
+               !request.isHttpError;
 #endif
     }
 
-    private static string CreateErrorMessage(UnityWebRequest request)
+    private static string CreateErrorMessage(
+        UnityWebRequest request
+    )
     {
-        string responseBody = request.downloadHandler != null
-            ? request.downloadHandler.text
-            : string.Empty;
+        string responseBody =
+            request.downloadHandler != null
+                ? request.downloadHandler.text
+                : string.Empty;
 
         return
             "API hiba. HTTP státusz: " +

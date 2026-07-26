@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>DrillTest itch.io login</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 60px auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #error {
+            color: #b00020;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <h2 id="status">
+        itch.io bejelentkezés feldolgozása...
+    </h2>
+
+    <p id="details"></p>
+
+    <pre id="error"></pre>
+
+    <script>
+        async function completeLogin() {
+            const statusElement =
+                document.getElementById("status");
+
+            const detailsElement =
+                document.getElementById("details");
+
+            const errorElement =
+                document.getElementById("error");
+
+            try {
+                const parameters = new URLSearchParams(
+                    window.location.hash.substring(1)
+                );
+
+                const accessToken =
+                    parameters.get("access_token");
+
+                const state =
+                    parameters.get("state");
+
+                const oauthError =
+                    parameters.get("error");
+
+                const oauthErrorDescription =
+                    parameters.get("error_description");
+
+                /*
+                 * Eltávolítjuk az access tokent a böngésző
+                 * címsorából és előzményeiből.
+                 */
+                history.replaceState(
+                    null,
+                    "",
+                    window.location.pathname
+                );
+
+                if (oauthError) {
+                    throw new Error(
+                        oauthErrorDescription
+                            ? oauthError + ": " +
+                              oauthErrorDescription
+                            : "OAuth hiba: " + oauthError
+                    );
+                }
+
+                if (!accessToken) {
+                    throw new Error(
+                        "Nem érkezett itch.io access token."
+                    );
+                }
+
+                if (!state) {
+                    throw new Error(
+                        "Nem érkezett OAuth state azonosító."
+                    );
+                }
+
+                const response = await fetch(
+                    "./itch_callback.php",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            access_token: accessToken,
+                            state: state
+                        })
+                    }
+                );
+
+                const responseText =
+                    await response.text();
+
+                let result;
+
+                try {
+                    result = JSON.parse(responseText);
+                }
+                catch {
+                    throw new Error(
+                        "A PHP nem JSON választ adott:\n" +
+                        responseText
+                    );
+                }
+
+                if (!response.ok || !result.success) {
+                    throw new Error(
+                        result.message ||
+                        "A profil lekérése sikertelen."
+                    );
+                }
+
+                statusElement.textContent =
+                    "Sikeres itch.io bejelentkezés!";
+
+                detailsElement.textContent =
+                    "Felhasználó: " +
+                    result.data.username +
+                    ". Visszatérhetsz a játékhoz.";
+
+                errorElement.textContent = "";
+
+                /*
+                 * A Unity pollinggal fogja lekérni az eredményt,
+                 * ezért nem használunk window.opener.postMessage-et.
+                 */
+                setTimeout(function () {
+                    window.close();
+                }, 2000);
+            }
+            catch (error) {
+                statusElement.textContent =
+                    "Sikertelen bejelentkezés.";
+
+                detailsElement.textContent = "";
+
+                errorElement.textContent =
+                    error instanceof Error
+                        ? error.message
+                        : String(error);
+
+                console.error(error);
+            }
+        }
+
+        completeLogin();
+    </script>
+</body>
+</html>

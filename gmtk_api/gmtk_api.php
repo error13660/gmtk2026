@@ -50,12 +50,12 @@ try {
 function handleGet(PDO $pdo): void
 {
     $playerName = isset($_GET['player_name'])
-        ? trim($_GET['player_name'])
+        ? trim((string) $_GET['player_name'])
         : null;
 
     if ($playerName !== null && $playerName !== '') {
         $statement = $pdo->prepare(
-            'select id, player_name, score, depth, updated_at
+            'select id, player_name, depth, updated_at
              from leaderboard
              where player_name = :player_name'
         );
@@ -83,9 +83,9 @@ function handleGet(PDO $pdo): void
     }
 
     $statement = $pdo->query(
-        'select id, player_name, score, depth, updated_at
+        'select id, player_name, depth, updated_at
          from leaderboard
-         order by score desc, depth desc'
+         order by depth desc'
     );
 
     $players = $statement->fetchAll();
@@ -101,7 +101,7 @@ function handleGet(PDO $pdo): void
 function handlePut(PDO $pdo): void
 {
     $json = file_get_contents('php://input');
-    $data = json_decode($json, true);
+    $data = json_decode($json ?: '', true);
 
     if (!is_array($data)) {
         sendJson(
@@ -115,13 +115,8 @@ function handlePut(PDO $pdo): void
         ? trim((string) $data['player_name'])
         : '';
 
-    $score = filter_var(
-        isset($data['score']) ? $data['score'] : null,
-        FILTER_VALIDATE_INT
-    );
-
     $depth = filter_var(
-        isset($data['depth']) ? $data['depth'] : null,
+        $data['depth'] ?? null,
         FILTER_VALIDATE_INT
     );
 
@@ -130,14 +125,6 @@ function handlePut(PDO $pdo): void
             400,
             false,
             'A player_name mező kötelező.'
-        );
-    }
-
-    if ($score === false || $score < 0) {
-        sendJson(
-            400,
-            false,
-            'A score mezőnek nem negatív egész számnak kell lennie.'
         );
     }
 
@@ -150,21 +137,19 @@ function handlePut(PDO $pdo): void
     }
 
     $statement = $pdo->prepare(
-        'insert into leaderboard (player_name, score, depth)
-         values (:player_name, :score, :depth)
+        'insert into leaderboard (player_name, depth)
+         values (:player_name, :depth)
          on duplicate key update
-             score = values(score),
              depth = values(depth)'
     );
 
     $statement->execute([
         'player_name' => $playerName,
-        'score' => $score,
         'depth' => $depth
     ]);
 
     $selectStatement = $pdo->prepare(
-        'select id, player_name, score, depth, updated_at
+        'select id, player_name, depth, updated_at
          from leaderboard
          where player_name = :player_name'
     );
@@ -184,11 +169,11 @@ function handlePut(PDO $pdo): void
 }
 
 function sendJson(
-    $statusCode,
-    $success,
-    $message,
-    $data = null
-) {
+    int $statusCode,
+    bool $success,
+    string $message,
+    ?array $data = null
+): never {
     http_response_code($statusCode);
 
     $response = [
@@ -202,7 +187,8 @@ function sendJson(
 
     echo json_encode(
         $response,
-        JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
+        JSON_UNESCAPED_UNICODE |
+        JSON_PRETTY_PRINT
     );
 
     exit;

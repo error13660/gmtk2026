@@ -25,18 +25,17 @@ public class LeaderboardManager : MonoBehaviour
     {
         StartCoroutine(LoadLeaderboardFromApi());
     }
+
     private IEnumerator LoadLeaderboardFromApi()
     {
-
-
         yield return new WaitForSecondsRealtime(2f);
+
         LoadingService.Instance.Show();
 
         yield return new WaitForSecondsRealtime(5f);
 
-
-
-        using UnityWebRequest request = UnityWebRequest.Get(apiUrl);
+        using UnityWebRequest request =
+            UnityWebRequest.Get(apiUrl);
 
         request.SetRequestHeader(
             "Accept",
@@ -47,7 +46,8 @@ public class LeaderboardManager : MonoBehaviour
 
         try
         {
-            if (request.result != UnityWebRequest.Result.Success)
+            if (request.result !=
+                UnityWebRequest.Result.Success)
             {
                 Debug.LogError(
                     $"Nem sikerült lekérni a leaderboardot. " +
@@ -59,10 +59,13 @@ public class LeaderboardManager : MonoBehaviour
                 yield break;
             }
 
-            string json = request.downloadHandler.text;
+            string json =
+                request.downloadHandler.text;
 
             LeaderboardListResponse response =
-                JsonUtility.FromJson<LeaderboardListResponse>(json);
+                JsonUtility.FromJson<LeaderboardListResponse>(
+                    json
+                );
 
             if (response == null)
             {
@@ -76,7 +79,8 @@ public class LeaderboardManager : MonoBehaviour
             if (!response.success)
             {
                 Debug.LogError(
-                    $"Az API hibát adott vissza: {response.message}"
+                    $"Az API hibát adott vissza: " +
+                    $"{response.message}"
                 );
 
                 yield break;
@@ -95,6 +99,7 @@ public class LeaderboardManager : MonoBehaviour
             LoadingService.Instance.Hide();
         }
     }
+
     private void ShowLeaderboard(
         LeaderboardEntry[] players
     )
@@ -106,21 +111,9 @@ public class LeaderboardManager : MonoBehaviour
 
         sortedPlayers.Sort(
             (firstPlayer, secondPlayer) =>
-            {
-                int scoreComparison =
-                    secondPlayer.score.CompareTo(
-                        firstPlayer.score
-                    );
-
-                if (scoreComparison != 0)
-                {
-                    return scoreComparison;
-                }
-
-                return secondPlayer.depth.CompareTo(
+                secondPlayer.depth.CompareTo(
                     firstPlayer.depth
-                );
-            }
+                )
         );
 
         for (
@@ -129,10 +122,11 @@ public class LeaderboardManager : MonoBehaviour
             index++
         )
         {
-            LeaderboardRowUI newRow = Instantiate(
-                rowPrefab,
-                tableContent
-            );
+            LeaderboardRowUI newRow =
+                Instantiate(
+                    rowPrefab,
+                    tableContent
+                );
 
             int position = index + 1;
 

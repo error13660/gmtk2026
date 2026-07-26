@@ -8,7 +8,6 @@ using UnityEngine;
 public class LeaderboardPlayerData
 {
     public string playerName;
-    public int score;
     public int depth;
 }
 
@@ -26,7 +25,6 @@ public class LeaderboardEntry
 {
     public int id;
     public string player_name;
-    public int score;
     public int depth;
     public string updated_at;
 }
@@ -35,13 +33,11 @@ public class LeaderboardEntry
 public class LeaderboardEntryRequest
 {
     public string player_name;
-    public int score;
     public int depth;
 
-    public LeaderboardEntryRequest(string playerName, int score, int depth)
+    public LeaderboardEntryRequest(string playerName, int depth)
     {
         player_name = playerName;
-        this.score = score;
         this.depth = depth;
     }
 }
